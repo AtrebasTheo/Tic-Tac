@@ -1,18 +1,19 @@
 package Tic_Tac_Atrebas.jav;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public abstract class FieldTable {
-     float xc,yc;
+     float xco, yco;
      float fieldwidth = 100f; // Width of each field
      int currentPlayer;
+    int hoverX = -1, hoverY = -1;
     boolean gameOver;
     abstract  void setCenter(float centerx, float centery);
     abstract boolean makeMove(float xt, float yt);
     abstract void render(ShapeRenderer shape);
     abstract void reset();
     abstract boolean checkWin(int player);
+    abstract void mouseMoved(float screenX, float screenY);
 
     public FieldTable(float fieldwidth) {
         currentPlayer = 1; // Start with player 1

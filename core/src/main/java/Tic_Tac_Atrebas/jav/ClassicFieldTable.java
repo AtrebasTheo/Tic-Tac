@@ -2,6 +2,7 @@ package Tic_Tac_Atrebas.jav;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.Arrays;
@@ -22,13 +23,13 @@ public class ClassicFieldTable extends FieldTable{
     }
 
     public void setCenter(float centerx, float centery) {
-        this.xc = centerx- (fieldwidth * fields.length) / 2f;
-        this.yc = centery- (fieldwidth * fields[0].length) / 2f;
+        this.xco = centerx- (fieldwidth * fields.length) / 2f;
+        this.yco = centery- (fieldwidth * fields[0].length) / 2f;
     }
     public boolean makeMove(float xt, float yt) {
-        int x=(int) (Math.floor(  (xt-xc) / fieldwidth));
-        int y=(int) (Math.floor((yt-yc) / fieldwidth));
-        if (x < 0 || x >= 3 || y < 0 || y >= 3 || fields[x][y] != 0) {
+        int x=(int) (Math.floor(  (xt- xco) / fieldwidth));
+        int y=(int) (Math.floor((yt- yco) / fieldwidth));
+        if (x < 0 || x >= fields.length || y < 0 || y >= fields[0].length || fields[x][y] != 0) {
             System.out.println("invalid");
             System.out.println("x: "+x+" y: "+y);
             return false; // Invalid move
@@ -40,14 +41,22 @@ public class ClassicFieldTable extends FieldTable{
     }
 
     public void render(ShapeRenderer shape) {
+
+        shape.end();
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        if (hoverX >= 0 && hoverY >= 0) {
+            drawHighlight(hoverX, hoverY, shape);
+        }
+        shape.end();
+        shape.begin(ShapeRenderer.ShapeType.Line);
         if(Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
-            gameOver=true; // For testing purposes, pressing Enter ends the game
+            gameOver=true; ///FIXME For testing purposes, pressing Enter ends the game
         }
         Gdx.gl20.glLineWidth(5);
         shape.setColor(0, 0, 0, 1);
         for (int i = 1; i < 3; i++) {
-            shape.line(xc+i * fieldwidth, yc, xc+i * fieldwidth, yc+fields[0].length * fieldwidth);
-            shape.line(xc, yc+i * fieldwidth, xc+fields.length*fieldwidth, yc+i * fieldwidth);
+            shape.line(xco +i * fieldwidth, yco, xco +i * fieldwidth, yco +fields[0].length * fieldwidth);
+            shape.line(xco, yco +i * fieldwidth, xco +fields.length*fieldwidth, yco +i * fieldwidth);
         }
 
 
@@ -61,12 +70,12 @@ public class ClassicFieldTable extends FieldTable{
     }
 
     private void drawX(int i, int j,ShapeRenderer shape) {
-        float x = xc+i * fieldwidth, y = yc+j * fieldwidth;
+        float x = xco +i * fieldwidth, y = yco +j * fieldwidth;
         super.drawX(x,y,shape);
     }
 
     private void drawO(int i, int j,ShapeRenderer shape) {
-        float x = xc+i * fieldwidth + fieldwidth/2f, y = yc+j * fieldwidth+fieldwidth/2f;
+        float x = xco +i * fieldwidth + fieldwidth/2f, y = yco +j * fieldwidth+fieldwidth/2f;
         super.drawO(x,y,shape);
     }
 
@@ -86,10 +95,25 @@ public class ClassicFieldTable extends FieldTable{
         }
         currentPlayer = 1;
     }
+    void mouseMoved(float screenX, float screenY)
+    {
+        int x = (int) Math.floor((screenX - xco) / fieldwidth);
+        int y = (int) Math.floor((screenY - yco) / fieldwidth);
+        if (x >= 0 && x < fields.length && y >= 0 && y < fields[0].length && fields[x][y] == 0 && !gameOver) {
+            hoverX = x;
+            hoverY = y;
+        } else {
+            hoverX = -1;
+            hoverY = -1;
+        }
+
+    }
     public void drawHighlight(int x, int y, ShapeRenderer shape) {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shape.setColor(0.2f, 0.6f, 1f, 0.35f); // halbtransparentes Blau
-        float px = xc + x * fieldwidth;
-        float py = yc + y * fieldwidth;
+        float px = xco + x * fieldwidth;
+        float py = yco + y * fieldwidth;
         shape.rect(px, py, fieldwidth, fieldwidth);
     }
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -35,7 +36,7 @@ public class PlayScreen implements Screen {
     private final Stage stage;
     private final TextButtonStyle roundedStyle;
     private final List<Texture> disposableTextures = new ArrayList<>();
-    private int hoverX = -1, hoverY = -1;
+
 
     public PlayScreen(Main game) {
         this.game = game;
@@ -95,15 +96,7 @@ public class PlayScreen implements Screen {
             @Override
             public boolean mouseMoved(int screenX, int screenY) {
                 Vector2 screenCoords = viewport.unproject(new Vector2(screenX, screenY));
-                int x = (int) Math.floor((screenCoords.x - playTable.xc) / playTable.fieldwidth);
-                int y = (int) Math.floor((screenCoords.y - playTable.yc) / playTable.fieldwidth);
-                if (x >= 0 && x < 3 && y >= 0 && y < 3 && !playTable.gameOver) {
-                    hoverX = x;
-                    hoverY = y;
-                } else {
-                    hoverX = -1;
-                    hoverY = -1;
-                }
+                playTable.mouseMoved(screenCoords.x, screenCoords.y);
                 return false;
             }
 
@@ -124,16 +117,16 @@ public class PlayScreen implements Screen {
 
         // Weißes Label oben drauf
         Label winnerLabel = new Label(winnerText, labelStyle);
-        winnerLabel.setFontScale(1.2f);
+        winnerLabel.setFontScale(1);
         winnerLabel.setAlignment(Align.center);
 
         TextButton restartButton = new TextButton("Restart", roundedStyle);
         TextButton menuButton = new TextButton("Startmenu", roundedStyle);
 
-        // Füge das Stack-Label dem Table hinzu
-        table.add(winnerLabel).padBottom(20f).row();
-        table.add(restartButton).pad(10f).row();
-        table.add(menuButton).pad(10f).row();
+        // Layout-Anpassung: WinnerLabel hoch, Buttons weiter unten
+        table.add(winnerLabel).padTop(170f).padBottom(120f).expandX().row();
+        table.add(restartButton).padTop(180f).padBottom(30f).expandX().row();
+        table.add(menuButton).padTop(10f).expandX().row();
         Gdx.input.setInputProcessor(stage);
         // Button-Listener
         restartButton.addListener(new ClickListener() {
@@ -160,18 +153,16 @@ public class PlayScreen implements Screen {
         viewport.apply();
         shape.setProjectionMatrix(viewport.getCamera().combined);
         spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         spriteBatch.begin();
         spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
         spriteBatch.end();
-        shape.begin(ShapeRenderer.ShapeType.Filled);
-        if (hoverX >= 0 && hoverY >= 0) {
-            playTable.drawHighlight(hoverX, hoverY, shape);
-        }
-        shape.end();
+
         shape.begin(ShapeRenderer.ShapeType.Line);
-        // Gitter zeichnen
         playTable.render(shape);
         shape.end();
+
         stage.getViewport().apply();
         stage.act(delta);
         stage.draw();
