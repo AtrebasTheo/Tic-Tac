@@ -86,4 +86,10 @@ public class ClassicFieldTable extends FieldTable{
         }
         currentPlayer = 1;
     }
+    public void drawHighlight(int x, int y, ShapeRenderer shape) {
+        shape.setColor(0.2f, 0.6f, 1f, 0.35f); // halbtransparentes Blau
+        float px = xc + x * fieldwidth;
+        float py = yc + y * fieldwidth;
+        shape.rect(px, py, fieldwidth, fieldwidth);
+    }
 }

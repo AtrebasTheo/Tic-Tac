@@ -35,6 +35,7 @@ public class PlayScreen implements Screen {
     private final Stage stage;
     private final TextButtonStyle roundedStyle;
     private final List<Texture> disposableTextures = new ArrayList<>();
+    private int hoverX = -1, hoverY = -1;
 
     public PlayScreen(Main game) {
         this.game = game;
@@ -91,9 +92,18 @@ public class PlayScreen implements Screen {
                 }
                 return true;
             }
-            public boolean touchDragged (int screenX, int screenY, int pointer) {
-                Vector2 screenCoords=viewport.unproject(new Vector2(screenX, screenY));
-
+            @Override
+            public boolean mouseMoved(int screenX, int screenY) {
+                Vector2 screenCoords = viewport.unproject(new Vector2(screenX, screenY));
+                int x = (int) Math.floor((screenCoords.x - playTable.xc) / playTable.fieldwidth);
+                int y = (int) Math.floor((screenCoords.y - playTable.yc) / playTable.fieldwidth);
+                if (x >= 0 && x < 3 && y >= 0 && y < 3 && !playTable.gameOver) {
+                    hoverX = x;
+                    hoverY = y;
+                } else {
+                    hoverX = -1;
+                    hoverY = -1;
+                }
                 return false;
             }
 
@@ -153,6 +163,11 @@ public class PlayScreen implements Screen {
         spriteBatch.begin();
         spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
         spriteBatch.end();
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        if (hoverX >= 0 && hoverY >= 0) {
+            playTable.drawHighlight(hoverX, hoverY, shape);
+        }
+        shape.end();
         shape.begin(ShapeRenderer.ShapeType.Line);
         // Gitter zeichnen
         playTable.render(shape);
