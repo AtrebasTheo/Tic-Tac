@@ -1,0 +1,70 @@
+  //Matrix to do: green
+        int btnWidth = 400, btnHeight = 100, radius = 40;
+        // Normal
+        Pixmap btnPixmap = new Pixmap(btnWidth, btnHeight, Pixmap.Format.RGBA8888);
+        btnPixmap.setColor(new Color(0.2f, 0.4f, 0.9f, 1f));
+        btnPixmap.fillRectangle(radius, 0, btnWidth - 2 * radius, btnHeight);
+        btnPixmap.fillRectangle(0, radius, btnWidth, btnHeight - 2 * radius);
+        btnPixmap.fillCircle(radius, radius, radius);
+        btnPixmap.fillCircle(btnWidth - radius - 1, radius, radius);
+        btnPixmap.fillCircle(radius, btnHeight - radius - 1, radius);
+        btnPixmap.fillCircle(btnWidth - radius - 1, btnHeight - radius - 1, radius);
+        // Schwarzer Rand
+        btnPixmap.setColor(Color.BLACK);
+        btnPixmap.drawCircle(radius, radius, radius);
+        btnPixmap.drawCircle(btnWidth - radius - 1, radius, radius);
+        btnPixmap.drawCircle(radius, btnHeight - radius - 1, radius);
+        btnPixmap.drawCircle(btnWidth - radius - 1, btnHeight - radius - 1, radius);
+        btnPixmap.drawRectangle(radius, 0, btnWidth - 2 * radius, btnHeight);
+        btnPixmap.drawRectangle(0, radius, btnWidth, btnHeight - 2 * radius);
+        Texture btnTexture = new Texture(btnPixmap);
+        btnPixmap.dispose();
+        // Hover
+        Pixmap btnOverPixmap = new Pixmap(btnWidth, btnHeight, Pixmap.Format.RGBA8888);
+        btnOverPixmap.setColor(new Color(0.3f, 0.5f, 1f, 1f));
+        btnOverPixmap.fillRectangle(radius, 0, btnWidth - 2 * radius, btnHeight);
+        btnOverPixmap.fillRectangle(0, radius, btnWidth, btnHeight - 2 * radius);
+        btnOverPixmap.fillCircle(radius, radius, radius);
+        btnOverPixmap.fillCircle(btnWidth - radius - 1, radius, radius);
+        btnOverPixmap.fillCircle(radius, btnHeight - radius - 1, radius);
+        btnOverPixmap.fillCircle(btnWidth - radius - 1, btnHeight - radius - 1, radius);
+        btnOverPixmap.setColor(Color.BLACK);
+        btnOverPixmap.drawCircle(radius, radius, radius);
+        btnOverPixmap.drawCircle(btnWidth - radius - 1, radius, radius);
+        btnOverPixmap.drawCircle(radius, btnHeight - radius - 1, radius);
+        btnOverPixmap.drawCircle(btnWidth - radius - 1, btnHeight - radius - 1, radius);
+        btnOverPixmap.drawRectangle(radius, 0, btnWidth - 2 * radius, btnHeight);
+        btnOverPixmap.drawRectangle(0, radius, btnWidth, btnHeight - 2 * radius);
+        Texture btnOverTexture = new Texture(btnOverPixmap);
+        btnOverPixmap.dispose();
+        // Pressed
+        Pixmap btnDownPixmap = new Pixmap(btnWidth, btnHeight, Pixmap.Format.RGBA8888);
+        btnDownPixmap.setColor(new Color(0.1f, 0.2f, 0.7f, 1f));
+        btnDownPixmap.fillRectangle(radius, 0, btnWidth - 2 * radius, btnHeight);
+        btnDownPixmap.fillRectangle(0, radius, btnWidth, btnHeight - 2 * radius);
+        btnDownPixmap.fillCircle(radius, radius, radius);
+        btnDownPixmap.fillCircle(btnWidth - radius - 1, radius, radius);
+        btnDownPixmap.fillCircle(radius, btnHeight - radius - 1, radius);
+        btnDownPixmap.fillCircle(btnWidth - radius - 1, btnHeight - radius - 1, radius);
+        btnDownPixmap.setColor(Color.BLACK);
+        btnDownPixmap.drawCircle(radius, radius, radius);
+        btnDownPixmap.drawCircle(btnWidth - radius - 1, radius, radius);
+        btnDownPixmap.drawCircle(radius, btnHeight - radius - 1, radius);
+        btnDownPixmap.drawCircle(btnWidth - radius - 1, btnHeight - radius - 1, radius);
+        btnDownPixmap.drawRectangle(radius, 0, btnWidth - 2 * radius, btnHeight);
+        btnDownPixmap.drawRectangle(0, radius, btnWidth, btnHeight - 2 * radius);
+        Texture btnDownTexture = new Texture(btnDownPixmap);
+        btnDownPixmap.dispose();
+
+        // ButtonStyle mit abgerundeten Ecken, schwarzem Rand und Hover/Pressed
+        TextButtonStyle roundedStyle = new TextButtonStyle();
+        roundedStyle.up = new Image(btnTexture).getDrawable();
+        roundedStyle.over = new Image(btnOverTexture).getDrawable();
+        roundedStyle.down = new Image(btnDownTexture).getDrawable();
+        roundedStyle.font = normalFont;
+        roundedStyle.fontColor = Color.WHITE;
+
+        TextButton btn1 = new TextButton("1 Spieler", roundedStyle);
+        TextButton btn2 = new TextButton("2 Spieler", roundedStyle);
+        TextButton btn3 = new TextButton("3 Spieler", roundedStyle);
+        TextButton settingsBtn = new TextButton("Settings", roundedStyle);
