@@ -2,6 +2,7 @@ package Tic_Tac_Atrebas.jav;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -36,7 +38,7 @@ public class PlayScreen implements Screen {
     private final Stage stage;
     private final TextButtonStyle roundedStyle;
     private final List<Texture> disposableTextures = new ArrayList<>();
-
+    private InputMultiplexer inputMultiplexer;
 
     public PlayScreen(Main game) {
         this.game = game;
@@ -49,6 +51,8 @@ public class PlayScreen implements Screen {
         disposableTextures.add(backgroundTexture.getTexture());
         playTable.setCenter(viewport.getWorldWidth() / 2f, viewport.getWorldHeight() / 2f);
         stage = new Stage(new ScreenViewport());
+        inputMultiplexer= new InputMultiplexer(stage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
 
 
         // Pixmap für die Buttons erzeugen (normal, hover, pressed)
@@ -76,19 +80,57 @@ public class PlayScreen implements Screen {
         disposableTextures.add(btnTexture);
         disposableTextures.add(btnOverTexture);
         disposableTextures.add(btnDownTexture);
+
+
+        LabelStyle labelStyle = new LabelStyle(roundedStyle.font, Color.WHITE);
+
+        Table table = new Table();
+        table.setFillParent(true);
+        table.center();
+        stage.addActor(table);
+
+        // SettingsButton mit eigenem Style (up/over/down)
+        Texture settings = game.assetManager.get("Buttons/Blue_Buttons_Pixel.png");
+
+        TextureRegionDrawable settingsUpDrawable = new TextureRegionDrawable(new TextureRegion(settings, 32, 0, 16, 16));
+        TextureRegionDrawable settingsOverDrawable = new TextureRegionDrawable(new TextureRegion(settings, 32, 0, 16, 16));
+        TextureRegionDrawable settingsDownDrawable = new TextureRegionDrawable(new TextureRegion(settings, 192, 0, 16, 16));
+        ImageButton.ImageButtonStyle settingsStyle = new ImageButton.ImageButtonStyle();
+        settingsStyle.up = settingsUpDrawable;
+        settingsStyle.over = settingsOverDrawable;
+        settingsStyle.down = settingsDownDrawable;
+        ImageButton settingsButton = new ImageButton(settingsStyle);
+        settingsButton.setSize(63, 64);
+        Label winnerLabel = new Label("Player:", labelStyle);
+        winnerLabel.setAlignment(Align.center);
+
+        // SettingsButton oben rechts platzieren, WinnerLabel darunter
+        table.add(settingsButton).padTop(10f).padLeft(50f).size(48,48).expandX().align(Align.topRight).colspan(2).row();
+        table.add(winnerLabel).padTop(20f).padBottom(10f).padRight(0).expandX().row();
+        // ...restlicher Code bleibt...
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                table.remove();
+                System.out.println("Settings");
+            }
+        });
     }
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new InputAdapter() {
+        //Gdx.input.setInputProcessor(inputMultiplexer);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 if (playTable.gameOver) return true;
                 Vector2 screenCoords=viewport.unproject(new Vector2(screenX, screenY));
                 if (playTable.makeMove(screenCoords.x,screenCoords.y)) {
                     if (playTable.gameOver) {
                         showWinMenu();
-                        Gdx.input.setInputProcessor(stage);
+                        inputMultiplexer.removeProcessor(1);
+                        //Gdx.input.setInputProcessor(stage);
                     }
                 }
                 return true;
@@ -101,7 +143,6 @@ public class PlayScreen implements Screen {
             }
 
         });
-        // Prepare your screen here.
     }
 
     private void showWinMenu() {
@@ -136,6 +177,7 @@ public class PlayScreen implements Screen {
                 winnerLabel.remove();
                 restartButton.remove();
                 menuButton.remove();
+                table.remove();
                 show();
             }
         });

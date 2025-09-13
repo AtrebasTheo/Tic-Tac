@@ -8,6 +8,7 @@ public abstract class FieldTable {
      int currentPlayer;
     int hoverX = -1, hoverY = -1;
     boolean gameOver;
+    TableDrawer drawer;
     abstract  void setCenter(float centerx, float centery);
     abstract boolean makeMove(float xt, float yt);
     abstract void render(ShapeRenderer shape);

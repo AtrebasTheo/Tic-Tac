@@ -14,9 +14,10 @@ public class ClassicFieldTable extends FieldTable{
         fields = new int[width][height]; // 0=empty, 1=X, 2=O
         currentPlayer = 1; // Start with player 1
         this.fieldwidth = fieldwidth; // Set the field width
+        drawer= new PaperTableDrawer();
     }
     public ClassicFieldTable(int size) {
-        this(size, size,100); // Default to a 3x3 field
+        this(size, size,100); // Default field
     }
     public ClassicFieldTable(int size,float fieldwidth) {
         this(size, size,fieldwidth); // Default to a 3x3 field
@@ -35,15 +36,19 @@ public class ClassicFieldTable extends FieldTable{
             return false; // Invalid move
         }
         fields[x][y] = currentPlayer;
+        if(hoverX==x&&hoverY==y) { // If the hovered field was just played, remove the hover effect
+        hoverX=-1; hoverY=-1;}
         gameOver=checkWin(currentPlayer);
-        currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch player
+        if(!gameOver)
+        {currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch player
+        }
         return true;
     }
 
     public void render(ShapeRenderer shape) {
 
         shape.end();
-        shape.begin(ShapeRenderer.ShapeType.Filled);
+        /*shape.begin(ShapeRenderer.ShapeType.Filled);
         if (hoverX >= 0 && hoverY >= 0) {
             drawHighlight(hoverX, hoverY, shape);
         }
@@ -66,7 +71,8 @@ public class ClassicFieldTable extends FieldTable{
                 if (fields[i][j] == 1) drawX(i, j,shape);
                 if (fields[i][j] == 2) drawO(i, j,shape);
             }
-        }
+        }*/
+        drawer.drawClassicTable(xco,yco,fields,fieldwidth,hoverX,hoverY);
     }
 
     private void drawX(int i, int j,ShapeRenderer shape) {
@@ -94,6 +100,7 @@ public class ClassicFieldTable extends FieldTable{
             Arrays.fill(fields[i], 0);
         }
         currentPlayer = 1;
+        gameOver=false;
     }
     void mouseMoved(float screenX, float screenY)
     {

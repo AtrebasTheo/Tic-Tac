@@ -33,26 +33,13 @@ public class Main extends Game {
         stretchViewport=new StretchViewport(1000, 1000);
         assetManager= new AssetManager();
         loadAssets();
-       // Pixmap pixmap = PixmapLibrary.getTunnelMap(new Color(0.3f,0.7f,1f,1),1.4f,1f,1000);
+       Pixmap pixmap = PixmapLibrary.getTunnelMap(new Color(0.3f,0.7f,1f,1),1.4f,1f,1000);
         //Pixmap pixmap = PixmapLibrary.getTunnelMap(new Color(0.3f,0.7f,1f,1),new Color(0.1f,0.2f,0.4f,1),2f,1,1000);
         //Pixmap pixmap = PixmapLibrary.getTunnelMap(new Color(0.1f,0.2f,0.4f,1),new Color(0.3f,0.7f,1f,1),2f,2f,1000);
-        Pixmap pixmap = PixmapLibrary.getColourGradientMap(new Color(0.1f, 0.3f , 0.8f, 1f),new Color(0.1f, 0.3f + 0.45f, 0.8f, 1f),1,256);
-        /*for (int y = 0; y < 256; y++) {
-            pixmap.setColor(new Color(0.1f, 0.3f + 0.45f * y / 256f, 0.8f, 1f));
-            pixmap.drawPixel(0, y);
-        }*/
+        //Pixmap pixmap = PixmapLibrary.getColourGradientMap(new Color(0.1f, 0.3f , 0.8f, 1f),new Color(0.1f, 0.3f + 0.45f, 0.8f, 1f),1,256);
+
         backgroundTexture= new Texture(pixmap);
         pixmap.dispose();
-    }
-
-    private static Pixmap getPixmap() {
-        Pixmap pixmap2= new Pixmap(500,500,Pixmap.Format.RGBA8888);
-        pixmap2.setBlending(Pixmap.Blending.None);
-        for (int i = 0; i < 250; i++) {
-            pixmap2.setColor(new Color(0.3f,0.7f,1f,1-i/200f));
-            pixmap2.fillRectangle( i,i,500-i*2,500-i*2);
-        }
-        return pixmap2;
     }
 
     @Override
@@ -88,6 +75,7 @@ public class Main extends Game {
         normalFont.fontParameters.borderColor = Color.BLACK; // Farbe der Umrandung
         normalFont.fontParameters.borderStraight = false;
         assetManager.load("bruce.ttf", BitmapFont.class, normalFont);
+        assetManager.load("Buttons/Blue_Buttons_Pixel.png", Texture.class);
     }
 
 

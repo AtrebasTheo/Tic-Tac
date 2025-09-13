@@ -2,7 +2,7 @@ Papertexture: https://pixabay.com/illustrations/papertexture-texture-paper-20617
 Image by "https://pixabay.com/users/steve_a_johnson-8206634/?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=8857295"Steve Johnson from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=image&utm_content=8857295">Pixabay</a>
 Font: license: Freeware, Non-Commercial
       link: https://www.fontspace.com/bruce-forever-font-f89044
-
+Buttons: https://slyfox-studios.itch.io/buttons-pack
 
 
 
@@ -16,4 +16,6 @@ Hexagon fields
 Ice (vanish after a few moves)
 erase and strengthen/reinforce
 Planet
+UTTT (auch über die abgegrenzeten Felder)
+Recursive TTT
 
