@@ -89,6 +89,7 @@ public class PixmapLibrary {
     }
 
     public static Pixmap addColorOverlay(Pixmap pixmap, Color overlay, boolean exclusive) {
+        pixmap.setBlending(Pixmap.Blending.SourceOver);
         if(exclusive)
         {
             for (int y = 0; y < pixmap.getHeight(); y++) {

@@ -87,12 +87,21 @@ public class StartScreen implements Screen {
         btn1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Noch keine Aktion
+                game.getConfig().playercount=2;
+                game.getConfig().winLength=0;
+                game.getConfig().aiEnabled=true;
+                game.getConfig().gameMode=GameMode.Classic;
+                game.setScreen(new PlayScreen(game));
+
             }
         });
         btn2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                game.getConfig().playercount=2;
+                game.getConfig().winLength=0;
+                game.getConfig().gameMode=GameMode.Classic;
+                game.getConfig().aiEnabled=false;
                 game.setScreen(new PlayScreen(game));
             }
         });

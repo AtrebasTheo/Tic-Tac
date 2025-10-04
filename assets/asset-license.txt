@@ -18,4 +18,4 @@ erase and strengthen/reinforce
 Planet
 UTTT (auch über die abgegrenzeten Felder)
 Recursive TTT
-
+5 gewinnt (falling down)
