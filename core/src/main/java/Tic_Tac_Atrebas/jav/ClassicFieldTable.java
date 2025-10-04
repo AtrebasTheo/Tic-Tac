@@ -123,6 +123,20 @@ public class ClassicFieldTable extends FieldTable{
 
         return false;
     }
+
+
+    public boolean empty()
+    {
+        for(int i = 0; i < fields.length; i++) {
+            for(int j = 0; j < fields[i].length; j++) {
+                if(fields[i][j]!=0) return false;
+            }
+        }
+        return true;
+    }
+
+
+
     public boolean full()
     {
         for(int i = 0; i < fields.length; i++) {

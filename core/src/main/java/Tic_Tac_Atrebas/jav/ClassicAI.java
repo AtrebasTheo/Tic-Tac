@@ -1,4 +1,8 @@
 package Tic_Tac_Atrebas.jav;
+
+import java.util.ArrayList;
+import java.util.List;
+
 abstract class AIPlayer{
     public Difficulty difficulty = Difficulty.HARD;
     public int aiNumber; // 1 for X, 2 for O
@@ -36,7 +40,7 @@ public class ClassicAI extends AIPlayer {
             int maxEval = Integer.MIN_VALUE;
             for (int x = 0; x < table.fields.length; x++) {
                 for (int y = 0; y < table.fields[0].length; y++) {
-                    if (table.fields[x][y] == 0) {
+                    if (table.fields[x][y] == 0&&hasNeighbor(x,y)) {
                         table.fields[x][y] = aiNumber;
                         if (table.checkWin(aiNumber)) {
                             table.fields[x][y] = 0;
@@ -55,7 +59,7 @@ public class ClassicAI extends AIPlayer {
             int minEval = Integer.MAX_VALUE;
             for (int x = 0; x < table.fields.length; x++) {
                 for (int y = 0; y < table.fields[0].length; y++) {
-                    if (table.fields[x][y] == 0) {
+                    if (table.fields[x][y] == 0&&hasNeighbor(x,y)) {
                         table.fields[x][y] = humanPlayer;
                         if (table.checkWin(humanPlayer)) {
                             table.fields[x][y] = 0;
@@ -73,15 +77,60 @@ public class ClassicAI extends AIPlayer {
         }
     }
 
+
+    boolean hasNeighbor(int x, int y) {
+        int[] dx = {-1, 0, 1, -1, 1, -1, 0, 1};
+        int[] dy = {-1, -1, -1, 0, 0, 1, 1, 1};
+        for (int i = 0; i < dx.length; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx >= 0 && nx < table.fields.length && ny >= 0 && ny < table.fields[0].length) {
+                if (table.fields[nx][ny] != 0) return true;
+            }
+        }
+        return false;
+    }
+
+
+    void makeRandomMove() {
+        List<int[]> availableMoves = new ArrayList<>();
+        for (int i = 0; i < table.fields.length; i++) {
+            for (int j = 0; j < table.fields[0].length; j++) {
+                if (table.fields[i][j] == 0) {
+                   availableMoves.add(new int[]{i, j});
+                }
+            }
+        }
+        int randomIndex = (int) (Math.random() * availableMoves.size());
+        int i = availableMoves.get(randomIndex)[0];
+        int j = availableMoves.get(randomIndex)[1];
+        table.makeMoveAtField(i, j);
+
+    }
     // Führt den besten Zug aus
     public void makeAIMove() {
+        if(table.empty())
+        {
+            table.makeMoveAtField(table.fields.length/2, table.fields[0].length/2);
+            return;
+        }
+        /*if(difficulty==Difficulty.EASY){
+            makeRandomMove();
+            return;
+        }
+        else if(difficulty==Difficulty.MEDIUM){
+            if(Math.random()<0.5){
+                makeRandomMove();
+                return;
+            }
+        }*/
         int bestScore = Integer.MIN_VALUE;
         int bestX = -1, bestY = -1;
         for (int x = 0; x < table.fields.length; x++) {
             for (int y = 0; y < table.fields[0].length; y++) {
-                if (table.fields[x][y] == 0) {
+                if (table.fields[x][y] == 0&&hasNeighbor(x,y)) {
                     table.fields[x][y] = aiNumber;
-                    int score = minimax(9, Integer.MIN_VALUE, Integer.MAX_VALUE, false); // Tiefe 6
+                    int score = minimax(6, Integer.MIN_VALUE, Integer.MAX_VALUE, false); // Tiefe 6
                     table.fields[x][y] = 0;
                     if (score > bestScore) {
                         bestScore = score;
@@ -95,7 +144,6 @@ public class ClassicAI extends AIPlayer {
             table.makeMoveAtField(bestX, bestY);
         }
         else{
-
             System.out.println("AI konnte keinen Zug finden!");
             for (int i = 0; i < table.fields.length; i++) {
                 for (int j = 0; j < table.fields[0].length; j++) {
