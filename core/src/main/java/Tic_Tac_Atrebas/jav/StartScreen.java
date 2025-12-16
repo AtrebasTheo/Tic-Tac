@@ -32,7 +32,7 @@ public class StartScreen implements Screen {
     private final BitmapFont normalFont;
     private final Main game;
     private  Table table;
-    private final Table settingsTable= new Table();
+    private  Table settingsTable;
     private InputListener settingsInputListener; // listener, damit wir ihn entfernen können
     TextButtonStyle roundedStyle;
     // Asset keys für Buttons (kannst du später per Setter setzen)
@@ -59,6 +59,7 @@ public class StartScreen implements Screen {
 
     private void initializeStartMenu()
     {
+
         table = new Table();
         table.setFillParent(true);
         table.center();
@@ -149,13 +150,14 @@ public class StartScreen implements Screen {
 
     private void showSettingsMenu() {
 
-        // Wenn bereits sichtbar, nichts tun
-        if(settingsTable.hasParent() && settingsTable.isVisible()){
+        if(settingsTable!=null)
+        {
             settingsTable.setVisible(true);
+            stage.addListener(settingsInputListener);
             return;
         }
 
-        settingsTable.clear();
+        settingsTable= new Table();
         settingsTable.setFillParent(true);
         settingsTable.center();
         // Engere Anordnung für Hochkant (Mobilgerät)
@@ -175,8 +177,8 @@ public class StartScreen implements Screen {
 
 
         Texture tsheet = game.assetManager.get("Buttons/Blue_Buttons_Pixel.png");
-       // TextureRegionDrawable(new TextureRegion(tsheet , sx, sy, sw, sh));
-        // Erzeuge Buttons: links/rechts ändern Style, confirm/cancel
+
+
         Drawable leftD = new TextureRegionDrawable(new TextureRegion(tsheet, 80, 0, 16,16));
         Drawable rightD =  new TextureRegionDrawable(new TextureRegion(tsheet , 96, 0,16,16));
         Drawable confirmD = new TextureRegionDrawable(new TextureRegion(tsheet , 0, 32,16,16));
@@ -193,12 +195,6 @@ public class StartScreen implements Screen {
 
 
 
-        if(leftImgBtn != null) leftImgBtn.setSize(64, 64);
-        if(rightImgBtn != null) rightImgBtn.setSize(64, 64);
-        if(confirmImgBtn != null) confirmImgBtn.setSize(120, 64);
-        if(cancelImgBtn != null) cancelImgBtn.setSize(120, 64);
-
-        // ClickListener Hilfsfunktion
         ClickListener changeLeft = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -225,10 +221,7 @@ public class StartScreen implements Screen {
                 settingsTable.setVisible(false);
                 table.setVisible(true);
                 // Entferne Listener
-                if(settingsInputListener != null) {
-                    stage.removeListener(settingsInputListener);
-                    settingsInputListener = null;
-                }
+                stage.removeListener(settingsInputListener);
             }
         };
         ClickListener cancelClick = new ClickListener(){
@@ -237,10 +230,7 @@ public class StartScreen implements Screen {
                 // Abbrechen: keine Änderung an game.getConfig() nötig, wir gehen zurück
                 settingsTable.setVisible(false);
                 table.setVisible(true);
-                if(settingsInputListener != null) {
-                    stage.removeListener(settingsInputListener);
-                    settingsInputListener = null;
-                }
+                stage.removeListener(settingsInputListener);
             }
         };
 
@@ -270,10 +260,7 @@ public class StartScreen implements Screen {
 
         settingsTable.setVisible(true);
 
-        // Entferne alten Listener falls vorhanden
-        if(settingsInputListener != null) {
-            stage.removeListener(settingsInputListener);
-        }
+
 
         // Erstelle neuen Listener, der Pfeiltasten verarbeitet (noch sinnvoll für Desktop)
         settingsInputListener = new InputListener() {
@@ -296,21 +283,21 @@ public class StartScreen implements Screen {
                     settingsTable.setVisible(false);
                     table.setVisible(true);
                     stage.removeListener(this);
-                    settingsInputListener = null;
+
                     return true;
                 } else if(keycode == Input.Keys.ESCAPE) {
                     // Abbrechen: nicht bestätigen, zurück zum Hauptmenü
                     settingsTable.setVisible(false);
                     table.setVisible(true);
                     stage.removeListener(this);
-                    settingsInputListener = null;
+
                     return true;
                 }
                 return false;
             }
         };
 
-        // Stelle sicher, dass die Stage Eingaben erhält
+
         Gdx.input.setInputProcessor(stage);
         stage.addListener(settingsInputListener);
     }
@@ -341,7 +328,7 @@ public class StartScreen implements Screen {
 
     @Override
     public void hide() {
-        Gdx.input.setInputProcessor(null); // Eingabeprozessor entfernen, wenn der Screen versteckt wird
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override
