@@ -167,31 +167,57 @@ public class StartScreen implements Screen {
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(normalFont, Color.WHITE);
         // kleiner skalierter Font für Mobil
-        labelStyle.font.getData().setScale(0.85f);
+        //labelStyle.font.getData().setScale(0.5f);
 
 
         final Label styleLabel = new Label(game.getConfig().gameStyle.name(), labelStyle);
-        styleLabel.setWrap(true);
+       // styleLabel.setWrap(true);
         styleLabel.setAlignment(com.badlogic.gdx.utils.Align.center);
-
-
-
-        Texture tsheet = game.assetManager.get("Buttons/Blue_Buttons_Pixel.png");
-
-
-        Drawable leftD = new TextureRegionDrawable(new TextureRegion(tsheet, 80, 0, 16,16));
-        Drawable rightD =  new TextureRegionDrawable(new TextureRegion(tsheet , 96, 0,16,16));
-        Drawable confirmD = new TextureRegionDrawable(new TextureRegion(tsheet , 0, 32,16,16));
-        Drawable cancelD = new TextureRegionDrawable(new TextureRegion(tsheet , 160, 16, 16,16));
+        styleLabel.setFontScale(0.5f);
 
         TextButtonStyle simpleStyle = new TextButtonStyle();
         simpleStyle.font = normalFont;
         simpleStyle.fontColor = Color.WHITE;
 
-        final ImageButton leftImgBtn =  new ImageButton(leftD) ;
-        final ImageButton rightImgBtn = new ImageButton(rightD);
-        final ImageButton confirmImgBtn =  new ImageButton(confirmD);
-        final ImageButton cancelImgBtn =  new ImageButton(cancelD);
+
+
+        Texture tsheet = game.assetManager.get("Buttons/Blue_Buttons_Pixel.png");
+
+        Drawable leftup = new TextureRegionDrawable(new TextureRegion(tsheet, 80, 0, 16,16));
+        Drawable leftdown = new TextureRegionDrawable(new TextureRegion(tsheet, 240, 0, 16,16));
+
+        Drawable rightup =  new TextureRegionDrawable(new TextureRegion(tsheet , 96, 0,16,16));
+        Drawable rightdown =  new TextureRegionDrawable(new TextureRegion(tsheet , 256, 0,16,16));
+
+        Drawable confirmup = new TextureRegionDrawable(new TextureRegion(tsheet , 0, 32,16,16));
+        Drawable confirmdown = new TextureRegionDrawable(new TextureRegion(tsheet , 160, 32,16,16));
+
+        Drawable cancelup = new TextureRegionDrawable(new TextureRegion(tsheet , 0, 16, 16,16));
+        Drawable canceldown = new TextureRegionDrawable(new TextureRegion(tsheet , 160, 16, 16,16));
+
+
+
+        ImageButton.ImageButtonStyle leftStyle = new ImageButton.ImageButtonStyle();
+        ImageButton.ImageButtonStyle rightStyle = new ImageButton.ImageButtonStyle();
+        ImageButton.ImageButtonStyle confirmStyle = new ImageButton.ImageButtonStyle();
+        ImageButton.ImageButtonStyle cancelStyle = new ImageButton.ImageButtonStyle();
+
+
+
+        leftStyle.up = leftup;
+        leftStyle.down = leftdown;
+        rightStyle.up = rightup;
+        rightStyle.down = rightdown;
+        confirmStyle.up = confirmup;
+        confirmStyle.down = confirmdown;
+        cancelStyle.up = cancelup;
+        cancelStyle.down = canceldown;
+
+
+        final ImageButton leftImgBtn =  new ImageButton(leftStyle) ;
+        final ImageButton rightImgBtn = new ImageButton(rightStyle);
+        final ImageButton confirmImgBtn =  new ImageButton(confirmStyle);
+        final ImageButton cancelImgBtn =  new ImageButton(cancelStyle);
 
 
 
@@ -234,6 +260,8 @@ public class StartScreen implements Screen {
             }
         };
 
+
+
         leftImgBtn.addListener(changeLeft);
         rightImgBtn.addListener(changeRight);
         confirmImgBtn.addListener(confirmClick);
@@ -242,18 +270,19 @@ public class StartScreen implements Screen {
         // Aufbau: Titel, mittleres schmales Panel mit links/label/rechts (in einer Zeile), dann Confirm/Cancel
         //settingsTable.add(title).width(panelWidth).padBottom(12).row();
 
+        leftImgBtn.setSize(64, 64);
+        rightImgBtn.setSize(64, 64);
         // Style-Name in eigener, schmaler Zeile (besser für Hochkant/Handy)
-        settingsTable.add(styleLabel).width(panelWidth - 40).pad(8).row();
+        settingsTable.add(leftImgBtn).size(64,64).pad(10);
+        settingsTable.add(styleLabel).width(panelWidth - 40).pad(60);
+        settingsTable.add(rightImgBtn).size(64,64).pad(10).row();
+
+       // settingsTable.add().width(20); // kleiner Abstand
 
 
-        settingsTable.add(leftImgBtn).size(64,64).pad(8);
-        settingsTable.add().width(20); // kleiner Abstand
-        settingsTable.add(rightImgBtn).size(64,64).pad(8);
 
-
-
-       settingsTable.add(confirmImgBtn).pad(12).width(panelWidth * 0.7f).height(56).row();
-        settingsTable.add(cancelImgBtn).pad(12).width(panelWidth * 0.7f).height(56);
+       settingsTable.add(confirmImgBtn).pad(12).width(64).height(64);
+       settingsTable.add(cancelImgBtn).pad(12).width(64).height(64);
 
 
 

@@ -9,7 +9,7 @@ public class GameConfiguration {
     boolean iced;
     boolean eraseable;
     boolean reinforced;
-    GameStyle gameStyle=GameStyle.Paper_Classic;
+    GameStyle gameStyle=GameStyle.Classic_Paper;
 }
-enum GameStyle{Paper_Classic,Ice,Putple_Futuristic,Neon_Futuristic,Black_White/*,Retro,Minimalist,Space,Wooden,Metallic*/}
+enum GameStyle{Classic_Paper,Ice,Purple_Futuristic,Neon_Futuristic,Black_White/*,Retro,Minimalist,Space,Wooden,Metallic*/}
 enum GameMode{Classic}

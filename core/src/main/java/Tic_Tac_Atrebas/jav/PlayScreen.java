@@ -99,7 +99,7 @@ public class PlayScreen implements Screen {
         }
         Pixmap overmap =textureData.consumePixmap();
         Pixmap overmap2=new Pixmap(overmap.getWidth(), overmap.getHeight(),overmap.getFormat());
-        Texture sOverTexture=new Texture(PixmapLibrary.addColorOverlay(overmap2, new Color(1f, 1f, 1f, 0.5f),true));
+        Texture sOverTexture=new Texture(PixmapLibrary.addColorOverlay(overmap2, new Color(1f, 1f, 1f, 0.5f),false));
         //overmap2.dispose();
         //overmap.dispose();
         //disposableTextures.add(sOverTexture);
@@ -113,7 +113,7 @@ public class PlayScreen implements Screen {
         settingsStyle.over = settingsOverDrawable;
         settingsStyle.down = settingsDownDrawable;
         ImageButton settingsButton = new ImageButton(settingsStyle);
-        settingsButton.setSize(64, 64);
+        settingsButton.setSize(80, 80);
         Label playerLabel = new Label("Player:", labelStyle);
         playerLabel.setAlignment(Align.center);
         playerIcon = new Image(getPlayerIcon(playTable.getCurrentPlayer())); // Referenz speichern
@@ -198,7 +198,7 @@ public class PlayScreen implements Screen {
 
         TextButton restartButton = new TextButton("Restart", roundedStyle);
         TextButton menuButton = new TextButton("Startmenu", roundedStyle);
-
+        menuButton.getLabel().setFontScale(0.9f);
         // Layout-Anpassung: WinnerLabel hoch, Buttons weiter unten
         // WinnerLabel und Symbol (X oder O) nebeneinander
         int winner = playTable.getCurrentPlayer();
