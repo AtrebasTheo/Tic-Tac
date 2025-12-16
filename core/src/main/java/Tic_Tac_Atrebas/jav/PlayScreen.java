@@ -133,7 +133,7 @@ public class PlayScreen implements Screen {
 
     void initializeTable() {
         switch(game.getConfig().gameMode) {
-            case GameMode.Classic -> playTable = new ClassicFieldTable(3,game.getConfig());
+            case GameMode.Classic -> playTable = new ClassicFieldTable(5,game.getConfig());
             /*case 3 -> playTable = new ClassicFieldTable(5,game.getConfig());
             case 4 -> playTable = new ClassicFieldTable(7,game.getConfig());
             default -> playTable = new ClassicFieldTable(3,game.getConfig());*/

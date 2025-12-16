@@ -45,7 +45,9 @@ public class ClassicFieldTable extends FieldTable{
         fields[x][y] = currentPlayer;
         if(hoverX==x&&hoverY==y) { // If the hovered field was just played, remove the hover effect
             hoverX=-1; hoverY=-1;}
-        gameOver=checkWin(currentPlayer);
+        //gameOver=checkWin(currentPlayer);
+        gameOver=checkWin(currentPlayer,x,y);
+
         if(gameOver){
             winner=currentPlayer;
         }
@@ -71,9 +73,57 @@ public class ClassicFieldTable extends FieldTable{
         drawer.drawClassicTable(xco,yco,fields,fieldwidth,hoverX,hoverY);
     }
 
+    boolean checkWin(int player,int lastmoveX,int lastmoveY) {
 
+        int sizeX = fields.length;
+        int sizeY = fields[0].length;
+        // Zeilen
+        for (int of = 0; of < sizeX-winLength+1; of++) {
+            boolean rowWin = true;
+            for (int ix = of; ix < winLength+of; ix++) {
+                if (fields[ix][lastmoveY] != player) rowWin = false;
+            }
+            if(rowWin) return true;
+        }
+        // Spalten
+        for (int of = 0; of < sizeY-winLength+1; of++) {
+            boolean colWin = true;
+            for (int iy = of; iy < winLength+of; iy++) {
+                if (fields[lastmoveX][iy] != player) colWin = false;
+            }
+            if(colWin) return true;
+        }
 
-    boolean checkWin(int player) {
+        // Diagonale ↘ (links oben nach rechts unten)
+        int startOffset = Math.min(lastmoveX,Math.min( lastmoveY, winLength-1));
+        int startX = lastmoveX - startOffset;
+        int startY = lastmoveY - startOffset;
+        int endX = startX + winLength - 1;
+        int endY = startY + winLength - 1;
+        if (startX >= 0 && startY >= 0 && endX < sizeX && endY < sizeY) {
+            boolean diagWin1 = true;
+            for (int i = 0; i < winLength; i++) {
+                if (fields[startX + i][startY + i] != player) diagWin1 = false;
+            }
+            if (diagWin1) return true;
+        }
+        // Diagonale ↙ (rechts oben nach links unten)
+        startOffset = Math.min(sizeX - 1 - lastmoveX,Math.min( lastmoveY, winLength-1));
+        startX = lastmoveX + startOffset;
+        startY = lastmoveY - startOffset;
+        endX = startX - winLength + 1;
+        endY = startY + winLength - 1;
+        if (startX < sizeX && startY >= 0 && endX >= 0 && endY < sizeY) {
+            boolean diagWin2 = true;
+            for (int i = 0; i < winLength; i++) {
+                if (fields[startX - i][startY + i] != player) diagWin2 = false;
+            }
+            if (diagWin2) return true;
+        }
+        return false;
+    }
+
+        boolean checkWin(int player) {
         int sizeX = fields.length;
         int sizeY = fields[0].length;
         // Zeilen und Spalten

@@ -30,6 +30,33 @@ public class ClassicAI extends AIPlayer {
         return 0;
     }
 
+    void checkImmediateWinOrBlock() {
+        for (int x = 0; x < table.fields.length; x++) {
+            for (int y = 0; y < table.fields[0].length; y++) {
+                if (table.fields[x][y] == 0) {
+                    // Check for AI win
+                    table.fields[x][y] = aiNumber;
+                    if (table.checkWin(aiNumber)) {
+                        table.makeMoveAtField(x, y);
+                        return;
+                    }
+                    table.fields[x][y] = 0;
+
+                    // Check for human win to block
+                    table.fields[x][y] = humanPlayer;
+                    if (table.checkWin(humanPlayer)) {
+                        table.makeMoveAtField(x, y);
+                        return;
+                    }
+                    table.fields[x][y] = 0;
+                }
+            }
+        }
+    }
+
+
+
+
     // Minimax mit Alpha-Beta-Pruning
     private int minimax(int depth, int alpha, int beta, boolean maximizingPlayer) {
         int score = evaluateBoard();
@@ -114,6 +141,7 @@ public class ClassicAI extends AIPlayer {
             table.makeMoveAtField(table.fields.length/2, table.fields[0].length/2);
             return;
         }
+        //checkImmediateWinOrBlock();
         /*if(difficulty==Difficulty.EASY){
             makeRandomMove();
             return;
@@ -132,7 +160,8 @@ public class ClassicAI extends AIPlayer {
                     table.fields[x][y] = aiNumber;
                     int score = minimax(6, Integer.MIN_VALUE, Integer.MAX_VALUE, false); // Tiefe 6
                     table.fields[x][y] = 0;
-                    if (score > bestScore) {
+                    if (score >= bestScore) {
+                        if(score==bestScore&&Math.random()<0.3) continue; // Bei Gleichstand zufällig entscheiden
                         bestScore = score;
                         bestX = x;
                         bestY = y;
