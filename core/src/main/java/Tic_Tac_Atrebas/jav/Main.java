@@ -22,7 +22,7 @@ public class Main extends Game {
     private StretchViewport stretchViewport;
     private SpriteBatch spriteBatch;
     private GameConfiguration config;
-    AssetManager assetManager;
+    AdvancedAssetManager assetManager;
     enum State {
         LOAD,START, PLAY,GAMEOVER, RESTART, EXIT
     }
@@ -32,7 +32,7 @@ public class Main extends Game {
     public void create() {
         spriteBatch=new SpriteBatch();
         stretchViewport=new StretchViewport(1000, 1000);
-        assetManager= new AssetManager();
+        assetManager= new AdvancedAssetManager();
         config=new GameConfiguration();
         loadAssets();
         Pixmap pixmap = PixmapLibrary.getColourGradientMap(new Color(0.1f, 0.3f , 0.8f, 1f),new Color(0.1f, 0.3f + 0.45f, 0.8f, 1f),1,256);
@@ -53,6 +53,7 @@ public class Main extends Game {
             if(assetManager.update(5))
             {
                 state=State.START;
+                assetManager.createRemainingAssets();
                 startScreen= new StartScreen(this);
 
                 //startScreen.setButtonAssetKeys(leftKey, rightKey, confirmKey, cancelKey);
@@ -82,6 +83,9 @@ public class Main extends Game {
         normalFont.fontParameters.borderStraight = false;
         assetManager.load("bruce.ttf", BitmapFont.class, normalFont);
         assetManager.load("Buttons/Blue_Buttons_Pixel.png", Texture.class);
+
+
+
     }
 
 

@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -50,68 +49,30 @@ public class PlayScreen implements Screen {
         initializeTable();
 
         backgroundTexture=new TextureRegion(new Texture("backgrounds/paper_1280.jpg"));
+        //nicht zum Assetmanager hinzufügen, da der Hintergrund sich ändern kann,
+        // und nicht alle auf einmal im Ram stecken sollen
+
         disposableTextures.add(backgroundTexture.getTexture());
 
         inputMultiplexer= new InputMultiplexer(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
 
 
-        // Pixmap für die Buttons erzeugen (normal, hover, pressed)
-        int btnWidth = 400, btnHeight = 100, outlineWidth = 5; float rounding = 0.8f;
-        // Normal
-        Pixmap btnPixmap =PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f, 0.4f, 0.9f, 1f),outlineWidth);
-        Texture btnTexture = new Texture(btnPixmap);
-        // Hover
-        Pixmap btnOverPixmap = PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f*0.5f, 0.4f*1.7f, 0.9f*1.4f, 1f), outlineWidth);
-        Texture btnOverTexture = new Texture(btnOverPixmap);
-        // Pressed
-        Pixmap btnDownPixmap = PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f*0.4f, 0.4f*1.5f, 0.9f*1.25f, 1f), outlineWidth);
-        Texture btnDownTexture = new Texture(btnDownPixmap);
 
-        btnPixmap.dispose();
-        btnOverPixmap.dispose();
-        btnDownPixmap.dispose();
-
-
-        // ButtonStyle mit abgerundeten Ecken, schwarzem Rand und Hover/Pressed
-        roundedStyle = new TextButtonStyle();
-        roundedStyle.up = new Image(btnTexture).getDrawable();
-        roundedStyle.over = new Image(btnOverTexture).getDrawable();
-        roundedStyle.down = new Image(btnDownTexture).getDrawable();
-        roundedStyle.font = game.assetManager.get("bruce.ttf", BitmapFont.class);;
-        roundedStyle.fontColor = Color.WHITE;
-        disposableTextures.add(btnTexture);
-        disposableTextures.add(btnOverTexture);
-        disposableTextures.add(btnDownTexture);
-
+        roundedStyle = game.assetManager.getStandartBlueTextButtonStyle();
 
         LabelStyle labelStyle = new LabelStyle(roundedStyle.font, Color.WHITE);
         Table table = new Table();
         table.setFillParent(true);
         table.center();
         stage.addActor(table);
-        // SettingsButton
-        Texture settings = game.assetManager.get("Buttons/Blue_Buttons_Pixel.png");
 
-        TextureData textureData = settings.getTextureData();
-        if (!textureData.isPrepared()) {
-            textureData.prepare();
-        }
-        Pixmap overmap =textureData.consumePixmap();
-        Pixmap overmap2=new Pixmap(overmap.getWidth(), overmap.getHeight(),overmap.getFormat());
-        Texture sOverTexture=new Texture(PixmapLibrary.addColorOverlay(overmap2, new Color(1f, 1f, 1f, 0.5f),false));
-        //overmap2.dispose();
-        //overmap.dispose();
-        //disposableTextures.add(sOverTexture);
 
-        TextureRegionDrawable settingsUpDrawable = new TextureRegionDrawable(new TextureRegion(settings, 32, 0, 16, 16));
-        TextureRegionDrawable settingsOverDrawable = new TextureRegionDrawable(new TextureRegion(sOverTexture, 32, 0, 16, 16));
-        TextureRegionDrawable settingsDownDrawable = new TextureRegionDrawable(new TextureRegion(settings, 192, 0, 16, 16));
-        ImageButton.ImageButtonStyle settingsStyle = new ImageButton.ImageButtonStyle();
 
-        settingsStyle.up = settingsUpDrawable;
-        settingsStyle.over = settingsOverDrawable;
-        settingsStyle.down = settingsDownDrawable;
+        ImageButton.ImageButtonStyle settingsStyle = game.assetManager.getSettingsButtonStyle();
+
+
+
         ImageButton settingsButton = new ImageButton(settingsStyle);
         settingsButton.setSize(80, 80);
         Label playerLabel = new Label("Player:", labelStyle);
@@ -188,11 +149,10 @@ public class PlayScreen implements Screen {
         table.center();
         stage.addActor(table);
 
-        // WinnerLabel mit weißer Schrift und schwarzer Outline
-        String winnerText = "Winner:";
 
-        // Weißes Label oben drauf
-        Label winnerLabel = new Label(winnerText, labelStyle);
+
+
+        Label winnerLabel = new Label("Winner:", labelStyle);
         winnerLabel.setFontScale(1);
         winnerLabel.setAlignment(Align.center);
 
@@ -255,8 +215,7 @@ public class PlayScreen implements Screen {
         Texture iconTexture;
         switch (player) {
             case 0:
-                System.out.println("no player");
-                return null;
+               throw new IllegalArgumentException("invalid player 0");
             case 1:
                iconTexture=playTable.drawer.xTexture;
                break;

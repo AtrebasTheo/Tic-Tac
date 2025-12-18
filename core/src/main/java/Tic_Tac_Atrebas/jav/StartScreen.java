@@ -21,7 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class StartScreen implements Screen {
     private  Table table;
     private  Table settingsTable;
     private InputListener settingsInputListener; // listener, damit wir ihn entfernen können
-    TextButtonStyle roundedStyle;
+    GameConfiguration temporaryConfig;
     // Asset keys für Buttons (kannst du später per Setter setzen)
 
 
@@ -66,33 +66,13 @@ public class StartScreen implements Screen {
         stage.addActor(table);
 
         // Pixmap für abgerundete Buttons erzeugen (normal, hover, pressed)
-        int btnWidth = 400, btnHeight = 100, outlineWidth = 5; float rounding = 0.8f;
-        // Normal
-        Pixmap btnPixmap =PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f, 0.4f, 0.9f, 1f),outlineWidth);
-        Texture btnTexture = new Texture(btnPixmap);
-        // Hover
-        Pixmap btnOverPixmap = PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f*0.5f, 0.4f*1.7f, 0.9f*1.4f, 1f), outlineWidth);
-        Texture btnOverTexture = new Texture(btnOverPixmap);
-        Pixmap btnDownPixmap = PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f*0.4f, 0.4f*1.5f, 0.9f*1.25f, 1f), outlineWidth);
-        Texture btnDownTexture = new Texture(btnDownPixmap);
+        int btnWidth = 400, btnHeight = 100;
 
-        btnPixmap.dispose();
-        btnOverPixmap.dispose();
-        btnDownPixmap.dispose();
-        // ButtonStyle mit abgerundeten Ecken, schwarzem Rand und Hover/Pressed
-         roundedStyle = new TextButtonStyle();
-        roundedStyle.up = new Image(btnTexture).getDrawable();
-        roundedStyle.over = new Image(btnOverTexture).getDrawable();
-        roundedStyle.down = new Image(btnDownTexture).getDrawable();
-        roundedStyle.font = normalFont;
-        roundedStyle.fontColor = Color.WHITE;
-        disposableTextures.add(btnTexture);
-        disposableTextures.add(btnOverTexture);
-        disposableTextures.add(btnDownTexture);
+        TextButtonStyle roundedStyle =game.assetManager.getStandartBlueTextButtonStyle();
         TextButton btn1 = new TextButton("1 Player", roundedStyle);
         TextButton btn2 = new TextButton("2 Players", roundedStyle);
         TextButton btn3 = new TextButton("3 Players", roundedStyle);
-        TextButton settingsBtn = new TextButton("Settings", roundedStyle);
+        TextButton settingsBtn = new TextButton("Settings", roundedStyle );
 
 
 
@@ -114,6 +94,7 @@ public class StartScreen implements Screen {
                 game.getConfig().aiEnabled=true;
                 game.getConfig().gameMode=GameMode.Classic;
                 game.setScreen(new PlayScreen(game));
+                game.state= Main.State.PLAY;
 
             }
         });
@@ -125,6 +106,7 @@ public class StartScreen implements Screen {
                 game.getConfig().gameMode=GameMode.Classic;
                 game.getConfig().aiEnabled=false;
                 game.setScreen(new PlayScreen(game));
+                game.state= Main.State.PLAY;
             }
         });
         btn3.addListener(new ClickListener() {
@@ -181,45 +163,12 @@ public class StartScreen implements Screen {
 
 
 
-        Texture tsheet = game.assetManager.get("Buttons/Blue_Buttons_Pixel.png");
+        final ImageButton leftImgBtn =  new ImageButton(game.assetManager.getLeftArrowButtonStyle()) ;
+        final ImageButton rightImgBtn = new ImageButton(game.assetManager.getRightArrowButtonStyle());
+        final ImageButton confirmImgBtn =  new ImageButton(game.assetManager.getConfirmButtonStyle());
+        final ImageButton cancelImgBtn =  new ImageButton(game.assetManager.getCancelButtonStyle());
 
-        Drawable leftup = new TextureRegionDrawable(new TextureRegion(tsheet, 80, 0, 16,16));
-        Drawable leftdown = new TextureRegionDrawable(new TextureRegion(tsheet, 240, 0, 16,16));
-
-        Drawable rightup =  new TextureRegionDrawable(new TextureRegion(tsheet , 96, 0,16,16));
-        Drawable rightdown =  new TextureRegionDrawable(new TextureRegion(tsheet , 256, 0,16,16));
-
-        Drawable confirmup = new TextureRegionDrawable(new TextureRegion(tsheet , 0, 32,16,16));
-        Drawable confirmdown = new TextureRegionDrawable(new TextureRegion(tsheet , 160, 32,16,16));
-
-        Drawable cancelup = new TextureRegionDrawable(new TextureRegion(tsheet , 0, 16, 16,16));
-        Drawable canceldown = new TextureRegionDrawable(new TextureRegion(tsheet , 160, 16, 16,16));
-
-
-
-        ImageButton.ImageButtonStyle leftStyle = new ImageButton.ImageButtonStyle();
-        ImageButton.ImageButtonStyle rightStyle = new ImageButton.ImageButtonStyle();
-        ImageButton.ImageButtonStyle confirmStyle = new ImageButton.ImageButtonStyle();
-        ImageButton.ImageButtonStyle cancelStyle = new ImageButton.ImageButtonStyle();
-
-
-
-        leftStyle.up = leftup;
-        leftStyle.down = leftdown;
-        rightStyle.up = rightup;
-        rightStyle.down = rightdown;
-        confirmStyle.up = confirmup;
-        confirmStyle.down = confirmdown;
-        cancelStyle.up = cancelup;
-        cancelStyle.down = canceldown;
-
-
-        final ImageButton leftImgBtn =  new ImageButton(leftStyle) ;
-        final ImageButton rightImgBtn = new ImageButton(rightStyle);
-        final ImageButton confirmImgBtn =  new ImageButton(confirmStyle);
-        final ImageButton cancelImgBtn =  new ImageButton(cancelStyle);
-
-
+        temporaryConfig=game.getConfig().copy();
 
         ClickListener changeLeft = new ClickListener(){
             @Override
