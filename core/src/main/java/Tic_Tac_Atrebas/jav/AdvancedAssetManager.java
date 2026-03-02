@@ -59,28 +59,39 @@ public class AdvancedAssetManager extends AssetManager {
         roundedButtonStyle.font = normalFont;
         roundedButtonStyle.fontColor = Color.WHITE;
 
-
-        Texture blueButtonSheet = get("Buttons/Blue_Buttons_Pixel.png");
-
         settingsStyle = new ImageButton.ImageButtonStyle();
-        settingsStyle.up = new TextureRegionDrawable(new TextureRegion(blueButtonSheet, 32, 0, 16, 16));
-        settingsStyle.down = new TextureRegionDrawable(new TextureRegion(blueButtonSheet, 192, 0, 16, 16));
-
         leftStyle = new ImageButton.ImageButtonStyle();
-        leftStyle.up = new TextureRegionDrawable(new TextureRegion(blueButtonSheet, 80, 0, 16,16));
-        leftStyle.down = new TextureRegionDrawable(new TextureRegion(blueButtonSheet, 240, 0, 16,16));
-
         rightStyle = new ImageButton.ImageButtonStyle();
-        rightStyle.up =  new TextureRegionDrawable(new TextureRegion(blueButtonSheet , 96, 0,16,16));
-        rightStyle.down =  new TextureRegionDrawable(new TextureRegion(blueButtonSheet , 256, 0,16,16));
-
         confirmStyle = new ImageButton.ImageButtonStyle();
-        confirmStyle.up = new TextureRegionDrawable(new TextureRegion(blueButtonSheet , 0, 32,16,16));
-        confirmStyle.down = new TextureRegionDrawable(new TextureRegion(blueButtonSheet , 160, 32,16,16));
-
         cancelStyle = new ImageButton.ImageButtonStyle();
-        cancelStyle.up =  new TextureRegionDrawable(new TextureRegion(blueButtonSheet , 0, 16, 16,16));
-        cancelStyle.down = new TextureRegionDrawable(new TextureRegion(blueButtonSheet , 160, 16, 16,16));
+
+        setImageButtonStyleTexture("Buttons/Blue_Buttons_Pixel.png");
+
+    }
+
+    public void setImageButtonStyleTexture( String texturePath) {
+        Texture buttonsheet;
+        try{
+         buttonsheet = get(texturePath);
+        }catch (Exception e){
+            System.out.println("Texture not loaded: "+texturePath);
+            return;
+        }
+
+        settingsStyle.up = new TextureRegionDrawable(new TextureRegion(buttonsheet, 32, 0, 16, 16));
+        settingsStyle.down = new TextureRegionDrawable(new TextureRegion(buttonsheet, 192, 0, 16, 16));
+
+        leftStyle.up = new TextureRegionDrawable(new TextureRegion(buttonsheet, 80, 0, 16,16));
+        leftStyle.down = new TextureRegionDrawable(new TextureRegion(buttonsheet, 240, 0, 16,16));
+
+        rightStyle.up =  new TextureRegionDrawable(new TextureRegion(buttonsheet , 96, 0,16,16));
+        rightStyle.down =  new TextureRegionDrawable(new TextureRegion(buttonsheet , 256, 0,16,16));
+
+        confirmStyle.up = new TextureRegionDrawable(new TextureRegion(buttonsheet , 0, 32,16,16));
+        confirmStyle.down = new TextureRegionDrawable(new TextureRegion(buttonsheet , 160, 32,16,16));
+
+        cancelStyle.up =  new TextureRegionDrawable(new TextureRegion(buttonsheet , 0, 16, 16,16));
+        cancelStyle.down = new TextureRegionDrawable(new TextureRegion(buttonsheet , 160, 16, 16,16));
 
     }
 

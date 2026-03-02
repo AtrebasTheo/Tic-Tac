@@ -5,7 +5,6 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -16,10 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +34,7 @@ public class PlayScreen implements Screen {
     private final List<Texture> disposableTextures = new ArrayList<>();
     private InputMultiplexer inputMultiplexer;
     private Image playerIcon; // Referenz für das Player-Icon
+    private ImageButton settingsButton;
 
     public PlayScreen(Main game) {
         this.game = game;
@@ -73,8 +71,9 @@ public class PlayScreen implements Screen {
 
 
 
-        ImageButton settingsButton = new ImageButton(settingsStyle);
-        settingsButton.setSize(80, 80);
+         settingsButton = new ImageButton(settingsStyle);
+
+        settingsButton.setSize(96, 96);
         Label playerLabel = new Label("Player:", labelStyle);
         playerLabel.setAlignment(Align.center);
         playerIcon = new Image(getPlayerIcon(playTable.getCurrentPlayer())); // Referenz speichern
@@ -86,15 +85,14 @@ public class PlayScreen implements Screen {
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                table.remove();
-                System.out.println("Settings");
+                showSettingsMenu();
             }
         });
     }
 
     void initializeTable() {
-        switch(game.getConfig().gameMode) {
-            case GameMode.Classic -> playTable = new ClassicFieldTable(5,game.getConfig());
+        switch(game.getGameConfiguration().gameMode) {
+            case GameMode.Classic -> playTable = new ClassicFieldTable(5,game.getGameConfiguration());
             /*case 3 -> playTable = new ClassicFieldTable(5,game.getConfig());
             case 4 -> playTable = new ClassicFieldTable(7,game.getConfig());
             default -> playTable = new ClassicFieldTable(3,game.getConfig());*/
@@ -210,6 +208,78 @@ public class PlayScreen implements Screen {
             }
         });
     }
+
+    private void showSettingsMenu() {
+
+        Table table = new Table();
+        table.setFillParent(true);
+        table.center();
+        stage.addActor(table);
+        settingsButton.removeListener(settingsButton.getListeners().get(1));
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                table.remove();
+                settingsButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        showSettingsMenu();
+                    }
+                });
+                settingsButton.removeListener(settingsButton.getListeners().get(1));
+
+            }
+        });
+
+
+       ImageButton backButton = new ImageButton(game.assetManager.getLeftArrowButtonStyle());
+        TextButton restartButton = new TextButton("Restart", roundedStyle);
+        TextButton menuButton = new TextButton("Startmenu", roundedStyle);
+        menuButton.getLabel().setFontScale(0.9f);
+
+
+
+        table.add(backButton).padBottom(420f).padRight(510f).size(96,96).expandX().row();
+        table.add(restartButton).padTop(180f).padBottom(30f).expandX().row();
+        table.add(menuButton).padTop(10f).expandX().row();
+        Gdx.input.setInputProcessor(stage);
+
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                table.remove();
+                settingsButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        showSettingsMenu();
+                    }
+                });
+                settingsButton.removeListener(settingsButton.getListeners().get(1));
+
+            }
+        });
+        restartButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                playTable.reset();
+                restartButton.remove();
+                menuButton.remove();
+                backButton.remove();
+                table.remove();
+                show();
+                updatePlayerIcon(); // Icon nach Reset aktualisieren
+            }
+        });
+
+        menuButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(game.startScreen);
+            }
+        });
+    }
+
+
 
     Texture getPlayerIcon(int player) {
         Texture iconTexture;

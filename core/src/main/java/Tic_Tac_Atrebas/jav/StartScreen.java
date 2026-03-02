@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -20,7 +19,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 
 import java.util.ArrayList;
@@ -89,10 +87,10 @@ public class StartScreen implements Screen {
         btn1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getConfig().playercount=2;
-                game.getConfig().winLength=0;
-                game.getConfig().aiEnabled=true;
-                game.getConfig().gameMode=GameMode.Classic;
+                game.getGameConfiguration().playercount=2;
+                game.getGameConfiguration().winLength=0;
+                game.getGameConfiguration().aiEnabled=true;
+                game.getGameConfiguration().gameMode=GameMode.Classic;
                 game.setScreen(new PlayScreen(game));
                 game.state= Main.State.PLAY;
 
@@ -101,10 +99,10 @@ public class StartScreen implements Screen {
         btn2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getConfig().playercount=2;
-                game.getConfig().winLength=0;
-                game.getConfig().gameMode=GameMode.Classic;
-                game.getConfig().aiEnabled=false;
+                game.getGameConfiguration().playercount=2;
+                game.getGameConfiguration().winLength=0;
+                game.getGameConfiguration().gameMode=GameMode.Classic;
+                game.getGameConfiguration().aiEnabled=false;
                 game.setScreen(new PlayScreen(game));
                 game.state= Main.State.PLAY;
             }
@@ -139,6 +137,9 @@ public class StartScreen implements Screen {
             return;
         }
 
+
+
+
         settingsTable= new Table();
         settingsTable.setFillParent(true);
         settingsTable.center();
@@ -151,11 +152,13 @@ public class StartScreen implements Screen {
         // kleiner skalierter Font für Mobil
         //labelStyle.font.getData().setScale(0.5f);
 
+        final Label gameStyleLabel = new Label(game.getGameConfiguration().gameStyle.name(), labelStyle);
+        gameStyleLabel.setAlignment(com.badlogic.gdx.utils.Align.center);
+        gameStyleLabel.setFontScale(0.5f);
 
-        final Label styleLabel = new Label(game.getConfig().gameStyle.name(), labelStyle);
-       // styleLabel.setWrap(true);
-        styleLabel.setAlignment(com.badlogic.gdx.utils.Align.center);
-        styleLabel.setFontScale(0.5f);
+        final Label buttonColourLabel = new Label(game.getGameConfiguration().buttonColour.name(), labelStyle);
+        buttonColourLabel.setAlignment(com.badlogic.gdx.utils.Align.center);
+        buttonColourLabel.setFontScale(0.5f);
 
         TextButtonStyle simpleStyle = new TextButtonStyle();
         simpleStyle.font = normalFont;
@@ -168,26 +171,29 @@ public class StartScreen implements Screen {
         final ImageButton confirmImgBtn =  new ImageButton(game.assetManager.getConfirmButtonStyle());
         final ImageButton cancelImgBtn =  new ImageButton(game.assetManager.getCancelButtonStyle());
 
-        temporaryConfig=game.getConfig().copy();
+        final ImageButton leftBtn =  new ImageButton(game.assetManager.getLeftArrowButtonStyle()) ;
+        final ImageButton rightBtn = new ImageButton(game.assetManager.getRightArrowButtonStyle());
+
+        temporaryConfig=game.getGameConfiguration().copy();
 
         ClickListener changeLeft = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 GameStyle[] styles = GameStyle.values();
-                int idx = game.getConfig().gameStyle.ordinal();
+                int idx = game.getGameConfiguration().gameStyle.ordinal();
                 idx = (idx - 1 + styles.length) % styles.length;
-                game.getConfig().gameStyle = styles[idx];
-                styleLabel.setText(game.getConfig().gameStyle.name());
+                game.getGameConfiguration().gameStyle = styles[idx];
+                gameStyleLabel.setText(game.getGameConfiguration().gameStyle.name());
             }
         };
         ClickListener changeRight = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 GameStyle[] styles = GameStyle.values();
-                int idx = game.getConfig().gameStyle.ordinal();
+                int idx = game.getGameConfiguration().gameStyle.ordinal();
                 idx = (idx + 1) % styles.length;
-                game.getConfig().gameStyle = styles[idx];
-                styleLabel.setText(game.getConfig().gameStyle.name());
+                game.getGameConfiguration().gameStyle = styles[idx];
+                gameStyleLabel.setText(game.getGameConfiguration().gameStyle.name());
             }
         };
         ClickListener confirmClick = new ClickListener(){
@@ -209,6 +215,28 @@ public class StartScreen implements Screen {
             }
         };
 
+        ClickListener changeButtonsLeft = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ButtonColour[] colours = ButtonColour.values();
+                int idx = game.getGameConfiguration().buttonColour.ordinal();
+                idx = (idx - 1 + colours.length) % colours.length;
+                game.getGameConfiguration().buttonColour = colours[idx];
+                buttonColourLabel.setText(game.getGameConfiguration().buttonColour.name());
+                game.assetManager.setImageButtonStyleTexture("Buttons/"+game.getGameConfiguration().buttonColour.name()+"_Buttons_Pixel.png");
+            }
+        };
+        ClickListener changeButtonsRight = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ButtonColour[] colours = ButtonColour.values();
+                int idx = game.getGameConfiguration().buttonColour.ordinal();
+                idx = (idx + 1) % colours.length;
+                game.getGameConfiguration().buttonColour = colours[idx];
+                buttonColourLabel.setText(game.getGameConfiguration().buttonColour.name());
+                game.assetManager.setImageButtonStyleTexture("Buttons/"+game.getGameConfiguration().buttonColour.name()+"_Buttons_Pixel.png");
+            }
+        };
 
 
         leftImgBtn.addListener(changeLeft);
@@ -216,17 +244,20 @@ public class StartScreen implements Screen {
         confirmImgBtn.addListener(confirmClick);
         cancelImgBtn.addListener(cancelClick);
 
-        // Aufbau: Titel, mittleres schmales Panel mit links/label/rechts (in einer Zeile), dann Confirm/Cancel
-        //settingsTable.add(title).width(panelWidth).padBottom(12).row();
+        leftBtn.addListener(changeButtonsLeft);
+        rightBtn.addListener(changeButtonsRight);
 
         leftImgBtn.setSize(64, 64);
         rightImgBtn.setSize(64, 64);
-        // Style-Name in eigener, schmaler Zeile (besser für Hochkant/Handy)
+
         settingsTable.add(leftImgBtn).size(64,64).pad(10);
-        settingsTable.add(styleLabel).width(panelWidth - 40).pad(60);
+        settingsTable.add(gameStyleLabel).width(panelWidth - 40).pad(60);
         settingsTable.add(rightImgBtn).size(64,64).pad(10).row();
 
-       // settingsTable.add().width(20); // kleiner Abstand
+        settingsTable.add(leftBtn).size(64,64).pad(10);
+        settingsTable.add(buttonColourLabel).width(panelWidth - 40).pad(60);
+        settingsTable.add(rightBtn).size(64,64).pad(10).row();
+
 
 
 
@@ -245,16 +276,16 @@ public class StartScreen implements Screen {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 GameStyle[] styles = GameStyle.values();
-                int idx = game.getConfig().gameStyle.ordinal();
+                int idx = game.getGameConfiguration().gameStyle.ordinal();
                 if(keycode == Input.Keys.LEFT) {
                     idx = (idx - 1 + styles.length) % styles.length;
-                    game.getConfig().gameStyle = styles[idx];
-                    styleLabel.setText(game.getConfig().gameStyle.name());
+                    game.getGameConfiguration().gameStyle = styles[idx];
+                    gameStyleLabel.setText(game.getGameConfiguration().gameStyle.name());
                     return true;
                 } else if(keycode == Input.Keys.RIGHT) {
                     idx = (idx + 1) % styles.length;
-                    game.getConfig().gameStyle = styles[idx];
-                    styleLabel.setText(game.getConfig().gameStyle.name());
+                    game.getGameConfiguration().gameStyle = styles[idx];
+                    gameStyleLabel.setText(game.getGameConfiguration().gameStyle.name());
                     return true;
                 } else if(keycode == Input.Keys.ENTER) {
                     // Bestätigen: Schließe Settings und zurück zum Hauptmenü

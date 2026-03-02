@@ -4,6 +4,7 @@ public class SettingsConfiguration {
 
     GameStyle standardGameStyle=GameStyle.Classic_Paper;
     SettingsStyle settingsStyle= SettingsStyle.Blue;
+    String buttonTemplateFile="rounded";
     public SettingsConfiguration copy()
     {
         SettingsConfiguration copy= new SettingsConfiguration();

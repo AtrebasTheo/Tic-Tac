@@ -10,6 +10,7 @@ public class GameConfiguration {
     boolean eraseable;
     boolean reinforced;
     GameStyle gameStyle=GameStyle.Classic_Paper;
+    ButtonColour buttonColour=ButtonColour.Blue;
     public GameConfiguration copy()
     {
         GameConfiguration copy= new GameConfiguration();
@@ -23,7 +24,10 @@ public class GameConfiguration {
         copy.gameStyle=gameStyle;
         return copy;
     }
+
+
 }
 enum GameStyle{Classic_Paper,Ice,Purple_Futuristic,Neon_Futuristic,Black_White/*,Retro,Minimalist,Space,Wooden,Metallic*/}
+enum ButtonColour{Blue,Brown,Gray,Green,Purple,Red,Yellow}
 enum GameMode{Classic}
 
