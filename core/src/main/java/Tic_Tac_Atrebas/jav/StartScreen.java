@@ -16,17 +16,30 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StartScreen implements Screen {
-    private Stage stage;
+    private final Stage stage;
     private final List<Texture> disposableTextures = new ArrayList<>();
+    private final BitmapFont normalFont;
+    private final Main game;
+    private  Table table;
+    private  Table settingsTable;
+    private InputListener settingsInputListener; // listener, damit wir ihn entfernen können
+    GameConfiguration temporaryConfig;
+    // Asset keys für Buttons (kannst du später per Setter setzen)
+
 
     public StartScreen(final Main game) {
+        this.game=game;
         stage = new Stage(new ScreenViewport());
-        BitmapFont normalFont = game.assetManager.get("bruce.ttf", BitmapFont.class);
+        normalFont = game.assetManager.get("bruce.ttf", BitmapFont.class);
 
         // Hintergrundbild oder Farbverlauf erzeugen (hier: einfacher Verlauf)
         Pixmap bgpixmap= PixmapLibrary.getColourGradientMap(new Color(0.1f, 0.3f , 0.8f, 1f),new Color(0.1f, 0.3f + 0.45f, 0.8f, 1f),1,256);
@@ -37,40 +50,27 @@ public class StartScreen implements Screen {
         bg.setFillParent(true);
         stage.addActor(bg);
 
-        Table table = new Table();
+        initializeStartMenu();
+    }
+
+
+
+    private void initializeStartMenu()
+    {
+
+        table = new Table();
         table.setFillParent(true);
         table.center();
         stage.addActor(table);
 
         // Pixmap für abgerundete Buttons erzeugen (normal, hover, pressed)
-        int btnWidth = 400, btnHeight = 100, outlineWidth = 5; float rounding = 0.8f;
-        // Normal
-        Pixmap btnPixmap =PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f, 0.4f, 0.9f, 1f),outlineWidth);
-        Texture btnTexture = new Texture(btnPixmap);
-        // Hover
-        //Pixmap btnOverPixmap = PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f*0.8f, 0.4f*0.8f, 0.9f*0.8f, 1f),outlineWidth);
-        Pixmap btnOverPixmap = PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f*0.5f, 0.4f*1.7f, 0.9f*1.4f, 1f), outlineWidth);
-        Texture btnOverTexture = new Texture(btnOverPixmap);
-        Pixmap btnDownPixmap = PixmapLibrary.getRoundedSquare(btnWidth, btnHeight, rounding, new Color(0.2f*0.4f, 0.4f*1.5f, 0.9f*1.25f, 1f), outlineWidth);
-        Texture btnDownTexture = new Texture(btnDownPixmap);
+        int btnWidth = 400, btnHeight = 100;
 
-        btnPixmap.dispose();
-        btnOverPixmap.dispose();
-        btnDownPixmap.dispose();
-        // ButtonStyle mit abgerundeten Ecken, schwarzem Rand und Hover/Pressed
-        TextButtonStyle roundedStyle = new TextButtonStyle();
-        roundedStyle.up = new Image(btnTexture).getDrawable();
-        roundedStyle.over = new Image(btnOverTexture).getDrawable();
-        roundedStyle.down = new Image(btnDownTexture).getDrawable();
-        roundedStyle.font = normalFont;
-        roundedStyle.fontColor = Color.WHITE;
-        disposableTextures.add(btnTexture);
-        disposableTextures.add(btnOverTexture);
-        disposableTextures.add(btnDownTexture);
+        TextButtonStyle roundedStyle =game.assetManager.getStandartBlueTextButtonStyle();
         TextButton btn1 = new TextButton("1 Player", roundedStyle);
         TextButton btn2 = new TextButton("2 Players", roundedStyle);
         TextButton btn3 = new TextButton("3 Players", roundedStyle);
-        TextButton settingsBtn = new TextButton("Settings", roundedStyle);
+        TextButton settingsBtn = new TextButton("Settings", roundedStyle );
 
 
 
@@ -87,22 +87,24 @@ public class StartScreen implements Screen {
         btn1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getConfig().playercount=2;
-                game.getConfig().winLength=0;
-                game.getConfig().aiEnabled=true;
-                game.getConfig().gameMode=GameMode.Classic;
+                game.getGameConfiguration().playercount=2;
+                game.getGameConfiguration().winLength=0;
+                game.getGameConfiguration().aiEnabled=true;
+                game.getGameConfiguration().gameMode=GameMode.Classic;
                 game.setScreen(new PlayScreen(game));
+                game.state= Main.State.PLAY;
 
             }
         });
         btn2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getConfig().playercount=2;
-                game.getConfig().winLength=0;
-                game.getConfig().gameMode=GameMode.Classic;
-                game.getConfig().aiEnabled=false;
+                game.getGameConfiguration().playercount=2;
+                game.getGameConfiguration().winLength=0;
+                game.getGameConfiguration().gameMode=GameMode.Classic;
+                game.getGameConfiguration().aiEnabled=false;
                 game.setScreen(new PlayScreen(game));
+                game.state= Main.State.PLAY;
             }
         });
         btn3.addListener(new ClickListener() {
@@ -114,7 +116,9 @@ public class StartScreen implements Screen {
         settingsBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Noch keine Aktion
+                // öffne das Settings-Menü
+                table.setVisible(false);
+                showSettingsMenu();
             }
         });
 
@@ -122,6 +126,189 @@ public class StartScreen implements Screen {
         table.add(btn2).pad(20).width(btnWidth).height(btnHeight).row();
         table.add(btn3).pad(20).width(btnWidth).height(btnHeight).row();
         table.add(settingsBtn).pad(40).width(btnWidth).height(btnHeight);
+    }
+
+    private void showSettingsMenu() {
+
+        if(settingsTable!=null)
+        {
+            settingsTable.setVisible(true);
+            stage.addListener(settingsInputListener);
+            return;
+        }
+
+
+
+
+        settingsTable= new Table();
+        settingsTable.setFillParent(true);
+        settingsTable.center();
+        // Engere Anordnung für Hochkant (Mobilgerät)
+        final float panelWidth = 300f; // schmaleres Layout
+        settingsTable.padTop(30);
+        stage.addActor(settingsTable);
+
+        Label.LabelStyle labelStyle = new Label.LabelStyle(normalFont, Color.WHITE);
+        // kleiner skalierter Font für Mobil
+        //labelStyle.font.getData().setScale(0.5f);
+
+        final Label gameStyleLabel = new Label(game.getGameConfiguration().gameStyle.name(), labelStyle);
+        gameStyleLabel.setAlignment(com.badlogic.gdx.utils.Align.center);
+        gameStyleLabel.setFontScale(0.5f);
+
+        final Label buttonColourLabel = new Label(game.getGameConfiguration().buttonColour.name(), labelStyle);
+        buttonColourLabel.setAlignment(com.badlogic.gdx.utils.Align.center);
+        buttonColourLabel.setFontScale(0.5f);
+
+        TextButtonStyle simpleStyle = new TextButtonStyle();
+        simpleStyle.font = normalFont;
+        simpleStyle.fontColor = Color.WHITE;
+
+
+
+        final ImageButton leftImgBtn =  new ImageButton(game.assetManager.getLeftArrowButtonStyle()) ;
+        final ImageButton rightImgBtn = new ImageButton(game.assetManager.getRightArrowButtonStyle());
+        final ImageButton confirmImgBtn =  new ImageButton(game.assetManager.getConfirmButtonStyle());
+        final ImageButton cancelImgBtn =  new ImageButton(game.assetManager.getCancelButtonStyle());
+
+        final ImageButton leftBtn =  new ImageButton(game.assetManager.getLeftArrowButtonStyle()) ;
+        final ImageButton rightBtn = new ImageButton(game.assetManager.getRightArrowButtonStyle());
+
+        temporaryConfig=game.getGameConfiguration().copy();
+
+        ClickListener changeLeft = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                GameStyle[] styles = GameStyle.values();
+                int idx = game.getGameConfiguration().gameStyle.ordinal();
+                idx = (idx - 1 + styles.length) % styles.length;
+                game.getGameConfiguration().gameStyle = styles[idx];
+                gameStyleLabel.setText(game.getGameConfiguration().gameStyle.name());
+            }
+        };
+        ClickListener changeRight = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                GameStyle[] styles = GameStyle.values();
+                int idx = game.getGameConfiguration().gameStyle.ordinal();
+                idx = (idx + 1) % styles.length;
+                game.getGameConfiguration().gameStyle = styles[idx];
+                gameStyleLabel.setText(game.getGameConfiguration().gameStyle.name());
+            }
+        };
+        ClickListener confirmClick = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                settingsTable.setVisible(false);
+                table.setVisible(true);
+                // Entferne Listener
+                stage.removeListener(settingsInputListener);
+            }
+        };
+        ClickListener cancelClick = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Abbrechen: keine Änderung an game.getConfig() nötig, wir gehen zurück
+                settingsTable.setVisible(false);
+                table.setVisible(true);
+                stage.removeListener(settingsInputListener);
+            }
+        };
+
+        ClickListener changeButtonsLeft = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ButtonColour[] colours = ButtonColour.values();
+                int idx = game.getGameConfiguration().buttonColour.ordinal();
+                idx = (idx - 1 + colours.length) % colours.length;
+                game.getGameConfiguration().buttonColour = colours[idx];
+                buttonColourLabel.setText(game.getGameConfiguration().buttonColour.name());
+                game.assetManager.setImageButtonStyleTexture("Buttons/"+game.getGameConfiguration().buttonColour.name()+"_Buttons_Pixel.png");
+            }
+        };
+        ClickListener changeButtonsRight = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ButtonColour[] colours = ButtonColour.values();
+                int idx = game.getGameConfiguration().buttonColour.ordinal();
+                idx = (idx + 1) % colours.length;
+                game.getGameConfiguration().buttonColour = colours[idx];
+                buttonColourLabel.setText(game.getGameConfiguration().buttonColour.name());
+                game.assetManager.setImageButtonStyleTexture("Buttons/"+game.getGameConfiguration().buttonColour.name()+"_Buttons_Pixel.png");
+            }
+        };
+
+
+        leftImgBtn.addListener(changeLeft);
+        rightImgBtn.addListener(changeRight);
+        confirmImgBtn.addListener(confirmClick);
+        cancelImgBtn.addListener(cancelClick);
+
+        leftBtn.addListener(changeButtonsLeft);
+        rightBtn.addListener(changeButtonsRight);
+
+        leftImgBtn.setSize(64, 64);
+        rightImgBtn.setSize(64, 64);
+
+        settingsTable.add(leftImgBtn).size(64,64).pad(10);
+        settingsTable.add(gameStyleLabel).width(panelWidth - 40).pad(60);
+        settingsTable.add(rightImgBtn).size(64,64).pad(10).row();
+
+        settingsTable.add(leftBtn).size(64,64).pad(10);
+        settingsTable.add(buttonColourLabel).width(panelWidth - 40).pad(60);
+        settingsTable.add(rightBtn).size(64,64).pad(10).row();
+
+
+
+
+       settingsTable.add(confirmImgBtn).pad(12).width(64).height(64);
+       settingsTable.add(cancelImgBtn).pad(12).width(64).height(64);
+
+
+
+
+        settingsTable.setVisible(true);
+
+
+
+        // Erstelle neuen Listener, der Pfeiltasten verarbeitet (noch sinnvoll für Desktop)
+        settingsInputListener = new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                GameStyle[] styles = GameStyle.values();
+                int idx = game.getGameConfiguration().gameStyle.ordinal();
+                if(keycode == Input.Keys.LEFT) {
+                    idx = (idx - 1 + styles.length) % styles.length;
+                    game.getGameConfiguration().gameStyle = styles[idx];
+                    gameStyleLabel.setText(game.getGameConfiguration().gameStyle.name());
+                    return true;
+                } else if(keycode == Input.Keys.RIGHT) {
+                    idx = (idx + 1) % styles.length;
+                    game.getGameConfiguration().gameStyle = styles[idx];
+                    gameStyleLabel.setText(game.getGameConfiguration().gameStyle.name());
+                    return true;
+                } else if(keycode == Input.Keys.ENTER) {
+                    // Bestätigen: Schließe Settings und zurück zum Hauptmenü
+                    settingsTable.setVisible(false);
+                    table.setVisible(true);
+                    stage.removeListener(this);
+
+                    return true;
+                } else if(keycode == Input.Keys.ESCAPE) {
+                    // Abbrechen: nicht bestätigen, zurück zum Hauptmenü
+                    settingsTable.setVisible(false);
+                    table.setVisible(true);
+                    stage.removeListener(this);
+
+                    return true;
+                }
+                return false;
+            }
+        };
+
+
+        Gdx.input.setInputProcessor(stage);
+        stage.addListener(settingsInputListener);
     }
 
     @Override
@@ -150,7 +337,7 @@ public class StartScreen implements Screen {
 
     @Override
     public void hide() {
-        Gdx.input.setInputProcessor(null); // Eingabeprozessor entfernen, wenn der Screen versteckt wird
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override
