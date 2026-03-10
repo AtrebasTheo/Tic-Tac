@@ -35,8 +35,10 @@ public class Main extends Game {
         assetManager= new AssetManager();
         config=new GameConfiguration();
         loadAssets();
-        // Hintergrund-Textur passend zur Startgröße erzeugen
-        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Pixmap pixmap = PixmapLibrary.getColourGradientMap(new Color(0.1f, 0.3f , 0.8f, 1f),new Color(0.1f, 0.3f + 0.45f, 0.8f, 1f),1,256);
+
+        backgroundTexture= new Texture(pixmap);
+        pixmap.dispose();
 
     }
 
@@ -53,7 +55,6 @@ public class Main extends Game {
                 state=State.START;
                 startScreen= new StartScreen(this);
                 setScreen(startScreen);
-                resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             }
         }
 
@@ -62,9 +63,7 @@ public class Main extends Game {
         stretchViewport.apply();
         spriteBatch.setProjectionMatrix(stretchViewport.getCamera().combined);
         spriteBatch.begin();
-        if(backgroundTexture != null) {
-            spriteBatch.draw(backgroundTexture, 0, 0, stretchViewport.getWorldWidth(), stretchViewport.getWorldHeight());
-        }
+        spriteBatch.draw(backgroundTexture, 0, 0, stretchViewport.getWorldWidth(), stretchViewport.getWorldHeight());
         spriteBatch.end();
         super.render();
     }
@@ -97,10 +96,6 @@ public class Main extends Game {
         if(width <= 0 || height <= 0) return;
         stretchViewport.update(width, height, true);
         // Hintergrund-Textur an neue Größe anpassen
-        if(backgroundTexture != null) backgroundTexture.dispose();
-        Pixmap pixmap = PixmapLibrary.getTunnelMap(new Color(0.3f,0.7f,1f,1),1.4f,1f, width > 0 ? width : 1000);
-        backgroundTexture = new Texture(pixmap);
-        pixmap.dispose();
         super.resize(width, height);
 
     }
