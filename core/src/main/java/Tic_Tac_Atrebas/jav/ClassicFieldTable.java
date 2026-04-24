@@ -56,12 +56,16 @@ public class ClassicFieldTable extends FieldTable{
                 gameOver=true;//Draw
                 winner=0;}
         }
-        //winningstate
+
         if(!gameOver)
-        {currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch player
+        {
+            currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch player
             if(configuration.aiEnabled&&currentPlayer==aiPlayer.aiNumber)
             {
                 aiPlayer.makeAIMove();
+                if(full()){
+                    gameOver=true;//Draw
+                    winner=0;}
             }
         }
         return true;
@@ -71,7 +75,13 @@ public class ClassicFieldTable extends FieldTable{
 
         shape.end();
         drawer.drawClassicTable(xco,yco,fields,fieldwidth,hoverX,hoverY);
+
+
     }
+
+    /*public void act(float delta) {
+
+    }*/
 
     boolean checkWin(int player,int lastmoveX,int lastmoveY) {
 

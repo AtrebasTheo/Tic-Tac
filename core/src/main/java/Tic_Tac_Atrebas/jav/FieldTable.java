@@ -19,6 +19,7 @@ public abstract class FieldTable {
     abstract void reset();
     abstract boolean checkWin(int player);
     abstract void mouseMoved(float screenX, float screenY);
+    //abstract void act(float delta);
     abstract boolean full();
     public FieldTable(float fieldwidth) {
         currentPlayer = 1; // Start with player 1

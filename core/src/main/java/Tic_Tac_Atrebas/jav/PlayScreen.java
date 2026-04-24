@@ -17,13 +17,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /** First screen of the application. Displayed after the application is created. */
 public class PlayScreen implements Screen {
-    private final FitViewport viewport;
+    private final ScreenViewport viewport;
     private final ShapeRenderer shape;
     private final SpriteBatch spriteBatch;
     private ClassicFieldTable playTable;
@@ -38,7 +39,7 @@ public class PlayScreen implements Screen {
 
     public PlayScreen(Main game) {
         this.game = game;
-        viewport = new FitViewport( 680, 1000);
+        viewport = new ScreenViewport();
         shape = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
         //stage = new Stage(new ScreenViewport());
@@ -80,8 +81,11 @@ public class PlayScreen implements Screen {
         Table playerRow = new Table();
         playerRow.add(playerLabel).padRight(10f);
         playerRow.add(playerIcon).size(100, 100);
-        table.add(settingsButton).padBottom(100f).padLeft(510f).size(80,80).expandX().row();
-        table.add(playerRow).padBottom(650f).padRight(300).expandX().row();
+        playerRow.align(Align.topLeft);
+        settingsButton.align(Align.topRight);
+        table.add(settingsButton).padTop(10f).padBottom(-60f).padLeft(510f).size(80,80).expandX().row();
+        table.add(playerRow).padTop(1).padBottom(750f).padRight(300).expandX().row();
+
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -324,6 +328,8 @@ public class PlayScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
+        stage.getViewport().update(width, height, true);
+        viewport.getCamera().update();
         //stage.getViewport().update(width, height, true);
         // playTable nach Resize neu zentrieren
     }

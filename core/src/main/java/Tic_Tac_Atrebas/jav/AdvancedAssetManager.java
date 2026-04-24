@@ -73,6 +73,7 @@ public class AdvancedAssetManager extends AssetManager {
         Texture buttonsheet;
         try{
          buttonsheet = get(texturePath);
+        //buttonsheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }catch (Exception e){
             System.out.println("Texture not loaded: "+texturePath);
             return;
