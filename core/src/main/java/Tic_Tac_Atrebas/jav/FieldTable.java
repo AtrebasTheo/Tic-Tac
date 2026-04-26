@@ -1,25 +1,22 @@
 package Tic_Tac_Atrebas.jav;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 
-public abstract class FieldTable {
-     float xco, yco;
+public abstract class FieldTable extends Actor {
      float fieldwidth = 100f; // Width of each field
      int currentPlayer;
-     int winner=-1; // 0=draw, 1=player1, 2=player2
+     int winner= -1 ; // 0=draw, 1=player1, 2=player2
     int winLength;
     int hoverX = -1, hoverY = -1;
     boolean gameOver;
     float winningstate=0;
-    AIPlayer aiPlayer;
     TableDrawer drawer;
     abstract  void setCenter(float centerx, float centery);
     abstract boolean makeMove(float xt, float yt);
-    abstract void render(ShapeRenderer shape);
     abstract void reset();
-    abstract boolean checkWin(int player);
+    abstract boolean checkWin(int player,int lx, int ly);
     abstract void mouseMoved(float screenX, float screenY);
-    //abstract void act(float delta);
     abstract boolean full();
     public FieldTable(float fieldwidth) {
         currentPlayer = 1; // Start with player 1

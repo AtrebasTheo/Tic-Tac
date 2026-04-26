@@ -15,8 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
@@ -35,8 +35,10 @@ public class PlayScreen implements Screen {
     private final List<Texture> disposableTextures = new ArrayList<>();
     private InputMultiplexer inputMultiplexer;
     private Image playerIcon; // Referenz für das Player-Icon
+    private Label playerLabel;
     private ImageButton settingsButton;
-
+    AIPlayer aiPlayer;
+    boolean aiIsThinking = false;
     public PlayScreen(Main game) {
         this.game = game;
         viewport = new ScreenViewport();
@@ -45,17 +47,29 @@ public class PlayScreen implements Screen {
         //stage = new Stage(new ScreenViewport());
         stage = new Stage(viewport);
 
-        initializeTable();
-
-        backgroundTexture=new TextureRegion(new Texture("backgrounds/paper_1280.jpg"));
-        //nicht zum Assetmanager hinzufügen, da der Hintergrund sich ändern kann,
-        // und nicht alle auf einmal im Ram stecken sollen
-
-        disposableTextures.add(backgroundTexture.getTexture());
-
         inputMultiplexer= new InputMultiplexer(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
 
+        initializeTable();
+
+        backgroundTexture=new TextureRegion(new Texture("backgrounds/paper_1280.jpg"));
+        Table papertable = new Table();
+        papertable.setFillParent(true);
+        stage.addActor(papertable);
+        Image textureImage = new Image(new TextureRegionDrawable(backgroundTexture));
+        papertable.center();
+        papertable.add(textureImage).center();
+
+
+        disposableTextures.add(backgroundTexture.getTexture());
+
+
+
+        Table tabletable = new Table();
+        tabletable.setFillParent(true);
+        tabletable.center();
+        tabletable.add(playTable).center();
+       // stage.addActor(tabletable);
 
 
         roundedStyle = game.assetManager.getStandartBlueTextButtonStyle();
@@ -75,7 +89,7 @@ public class PlayScreen implements Screen {
          settingsButton = new ImageButton(settingsStyle);
 
         settingsButton.setSize(96, 96);
-        Label playerLabel = new Label("Player:", labelStyle);
+        playerLabel = new Label("Player:", labelStyle);
         playerLabel.setAlignment(Align.center);
         playerIcon = new Image(getPlayerIcon(playTable.getCurrentPlayer())); // Referenz speichern
         Table playerRow = new Table();
@@ -92,6 +106,9 @@ public class PlayScreen implements Screen {
                 showSettingsMenu();
             }
         });
+
+        stage.addActor(tabletable);
+
     }
 
     void initializeTable() {
@@ -102,9 +119,46 @@ public class PlayScreen implements Screen {
             default -> playTable = new ClassicFieldTable(3,game.getConfig());*/
         }
         playTable.setCenter(viewport.getWorldWidth() / 2f, viewport.getWorldHeight() / 2f);
+        if(game.getGameConfiguration().aiEnabled)
+        {aiPlayer= new ClassicAI(playTable,game.getGameConfiguration().playercount);}
 
     }
 
+
+    public void checkAI() {
+
+        if (playTable.gameOver||aiIsThinking) return;
+        if(game.getGameConfiguration().aiEnabled && playTable.currentPlayer==aiPlayer.aiNumber) {
+            final AIPlayer ai = aiPlayer;
+            aiIsThinking = true;
+            new Thread(() -> {
+                int[] bestMove = ai.calculateBestMove();
+                Gdx.app.postRunnable(() -> {
+                    if (bestMove != null) {
+                        playTable.makeMoveAtField(bestMove[0], bestMove[1]);
+                        aiIsThinking = false;
+                        onCompletedMove();
+                    }
+                    else{
+                        throw new IllegalArgumentException("AI konnte keinen Zug finden!");
+                    }
+                });
+            }).start();
+        }
+    }
+
+    public void onCompletedMove()
+    {
+        updatePlayerIcon(); // Icon nach jedem Zug aktualisieren
+        if (playTable.gameOver) {
+            showWinMenu();
+            inputMultiplexer.removeProcessor(1);
+        }
+        else
+        {
+            checkAI();
+        }
+    }
 
 
     @Override
@@ -113,14 +167,10 @@ public class PlayScreen implements Screen {
         inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                if (playTable.gameOver) return true;
+                if (playTable.gameOver||game.getGameConfiguration().aiEnabled &&playTable.currentPlayer==aiPlayer.aiNumber) return true;
                 Vector2 screenCoords=viewport.unproject(new Vector2(screenX, screenY));
                 if (playTable.makeMove(screenCoords.x,screenCoords.y)) {
-                    updatePlayerIcon(); // Icon nach jedem Zug aktualisieren
-                    if (playTable.gameOver) {
-                        showWinMenu();
-                        inputMultiplexer.removeProcessor(1);
-                    }
+                   onCompletedMove();
                 }
                 return true;
             }
@@ -146,53 +196,38 @@ public class PlayScreen implements Screen {
     private void showWinMenu() {
         LabelStyle labelStyle = new LabelStyle(roundedStyle.font, Color.WHITE);
 
+
+
+        playerLabel.setText((playTable.winner>0?"Winner:":"Draw"));
+
+        /*Label winnerLabel = new Label("Winner:", labelStyle);
+        winnerLabel.setFontScale(1);
+        winnerLabel.setAlignment(Align.center);
+
         Table table = new Table();
         table.setFillParent(true);
         table.center();
         stage.addActor(table);
 
-
-
-
-        Label winnerLabel = new Label("Winner:", labelStyle);
-        winnerLabel.setFontScale(1);
-        winnerLabel.setAlignment(Align.center);
-
         TextButton restartButton = new TextButton("Restart", roundedStyle);
         TextButton menuButton = new TextButton("Startmenu", roundedStyle);
-        menuButton.getLabel().setFontScale(0.9f);
-        // Layout-Anpassung: WinnerLabel hoch, Buttons weiter unten
-        // WinnerLabel und Symbol (X oder O) nebeneinander
+        menuButton.getLabel().setFontScale(0.9f);*/
+
         int winner = playTable.getCurrentPlayer();
         int iconSize = 80;
-        Pixmap iconPixmap = new Pixmap(iconSize, iconSize, Pixmap.Format.RGBA8888);
-        iconPixmap.setBlending(Pixmap.Blending.None);
-        if (winner == 1) { // X
-            iconPixmap.setColor(1, 0, 0, 1);
-            for (int i = -4; i <= 4; i++) { // dickeres X
-                iconPixmap.drawLine(8+i, 8, iconSize-8+i, iconSize-8);
-                iconPixmap.drawLine(8+i, iconSize-8, iconSize-8+i, 8);
-            }
-        } else { // O
-            iconPixmap.setColor(0, 0, 1, 1);
-            iconPixmap.fillCircle(iconSize/2, iconSize/2, iconSize/2-8);
-            iconPixmap.setColor(0, 0, 0, 0);
-            iconPixmap.fillCircle(iconSize/2, iconSize/2, iconSize/2-14);
-        }
-        //Texture iconTexture = new Texture(iconPixmap);
+
         Texture iconTexture = (winner==1? playTable.drawer.xTexture:playTable.drawer.oTexture);
-       // disposableTextures.add(iconTexture);
-        iconPixmap.dispose();
+
         Image winnerIcon = new Image(iconTexture);
         Table winnerRow = new Table();
-        winnerRow.add(winnerLabel).padRight(10f);
+        //winnerRow.add(winnerLabel).padRight(10f);
         winnerRow.add(winnerIcon).size(iconSize,iconSize);
-        table.add(winnerRow).padTop(170f).padBottom(120f).expandX().row();
-        table.add(restartButton).padTop(180f).padBottom(30f).expandX().row();
-        table.add(menuButton).padTop(10f).expandX().row();
+        //table.add(winnerRow).padTop(170f).padBottom(120f).expandX().row();
+      //  table.add(restartButton).padTop(180f).padBottom(30f).expandX().row();
+      //  table.add(menuButton).padTop(10f).expandX().row();
         Gdx.input.setInputProcessor(stage);
-        // Button-Listener
-        restartButton.addListener(new ClickListener() {
+
+        /*restartButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 playTable.reset();
@@ -210,8 +245,12 @@ public class PlayScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(game.startScreen);
             }
-        });
+        });*/
+        showSettingsMenu();
     }
+
+
+
 
     private void showSettingsMenu() {
 
@@ -224,6 +263,7 @@ public class PlayScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 table.remove();
+                show();
                 settingsButton.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -243,15 +283,16 @@ public class PlayScreen implements Screen {
 
 
 
-        table.add(backButton).padBottom(420f).padRight(510f).size(96,96).expandX().row();
-        table.add(restartButton).padTop(180f).padBottom(30f).expandX().row();
-        table.add(menuButton).padTop(10f).expandX().row();
+        //table.add(backButton).padBottom(220f).padRight(510f).size(96,96).expandX().row();
+        table.add(restartButton).padTop(100f).padBottom(30f).expandX().row();
+        table.add(menuButton).padTop(10f).padBottom(100f).expandX().row();
         Gdx.input.setInputProcessor(stage);
 
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 table.remove();
+                show();
                 settingsButton.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -265,6 +306,7 @@ public class PlayScreen implements Screen {
         restartButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                playerLabel.setText("Player:");
                 playTable.reset();
                 restartButton.remove();
                 menuButton.remove();
@@ -305,32 +347,33 @@ public class PlayScreen implements Screen {
 
     @Override
     public void render(float delta) {
+
         viewport.apply();
+        stage.getViewport().apply();
         shape.setProjectionMatrix(viewport.getCamera().combined);
         spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        spriteBatch.begin();
-        spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        spriteBatch.end();
-
-        shape.begin(ShapeRenderer.ShapeType.Line);
         playTable.drawer.shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
         playTable.drawer.colorfulBatch.setProjectionMatrix(viewport.getCamera().combined);
-        playTable.render(shape);
-        shape.end();
 
-        stage.getViewport().apply();
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+
+
         stage.act(delta);
         stage.draw();
+
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true);
+        viewport.update(width, height, false);
         stage.getViewport().update(width, height, true);
         viewport.getCamera().update();
-        //stage.getViewport().update(width, height, true);
+        //Camera camera = viewport.getCamera();
+
+        //camera.position.set(0, viewport.getWorldHeight()/2 , 0);
+        //camera.update();
         // playTable nach Resize neu zentrieren
     }
 

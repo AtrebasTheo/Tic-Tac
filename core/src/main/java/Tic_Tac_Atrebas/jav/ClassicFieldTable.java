@@ -1,8 +1,11 @@
 package Tic_Tac_Atrebas.jav;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.Arrays;
 
@@ -12,11 +15,11 @@ public class ClassicFieldTable extends FieldTable{
      GameConfiguration configuration;
     public ClassicFieldTable(int width, int height,float fieldwidth, GameConfiguration config) {
         fields = new int[width][height]; // 0=empty, 1=X, 2=O
+        setSize(width*fieldwidth, height*fieldwidth);
         currentPlayer = 1; // Start with player 1
         this.fieldwidth = fieldwidth; // Set the field width
         drawer= new PaperTableDrawer();
         winLength= (int) Math.ceil(Math.max(width,height)/2f)+1;
-        aiPlayer= new ClassicAI(this,config.playercount);
         configuration=config;
     }
     public ClassicFieldTable(int size,GameConfiguration config) {
@@ -27,12 +30,16 @@ public class ClassicFieldTable extends FieldTable{
     }
 
     public void setCenter(float centerx, float centery) {
-        this.xco = centerx- (fieldwidth * fields.length) / 2f;
-        this.yco = centery- (fieldwidth * fields[0].length) / 2f;
+        setPosition(centerx-getWidth()/2, centery-getHeight()/2);
     }
+    public float getCenterX()
+    {return getX() + getWidth() / 2;}
+    public float getCenterY()
+    {return getY() + getHeight() / 2;}
+
     public boolean makeMove(float xt, float yt) {
-        int x=(int) (Math.floor(  (xt- xco) / fieldwidth));
-        int y=(int) (Math.floor((yt- yco) / fieldwidth));
+        int x=(int) (  (xt- getX()) / fieldwidth);
+        int y=(int) ((yt- getY()) / fieldwidth);
         return makeMoveAtField(x,y);
     }
 
@@ -60,30 +67,24 @@ public class ClassicFieldTable extends FieldTable{
         if(!gameOver)
         {
             currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch player
-            if(configuration.aiEnabled&&currentPlayer==aiPlayer.aiNumber)
-            {
-                aiPlayer.makeAIMove();
-                if(full()){
-                    gameOver=true;//Draw
-                    winner=0;}
-            }
         }
         return true;
     }
 
-    public void render(ShapeRenderer shape) {
 
-        shape.end();
-        drawer.drawClassicTable(xco,yco,fields,fieldwidth,hoverX,hoverY);
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        batch.setColor(Color.WHITE);
 
+        //super.draw(batch, parentAlpha);
+        drawer.drawClassicTable(getX(),getY(),fields,fieldwidth,hoverX,hoverY);
+        //drawer.drawClassicTable(getX(),getY(),fields,fieldwidth,hoverX,hoverY);
+        batch.setColor(Color.WHITE);
 
     }
 
-    /*public void act(float delta) {
-
-    }*/
-
-    boolean checkWin(int player,int lastmoveX,int lastmoveY) {
+    //deprecated
+    boolean checkllWin(int player, int lastmoveX, int lastmoveY) {
 
         int sizeX = fields.length;
         int sizeY = fields[0].length;
@@ -133,56 +134,40 @@ public class ClassicFieldTable extends FieldTable{
         return false;
     }
 
-        boolean checkWin(int player) {
-        int sizeX = fields.length;
-        int sizeY = fields[0].length;
-        // Zeilen und Spalten
-        for (int iy = 0; iy < sizeY; iy++) {
+     boolean checkWin(int player, int lastmoveX, int lastmoveY) {
 
-            for (int of = 0; of < sizeX-winLength+1; of++) { // of = offset, if the field is larger than the winLength
-                boolean rowWin = true;
-                for (int ix = of; ix < winLength+of; ix++) {
-                    if (fields[ix][iy] != player) rowWin = false;
-                }
-                if(rowWin) return true;
 
-            }
-        }
+        if (1 + countDir( player, lastmoveX, lastmoveY,  1,  0) +
+            countDir( player, lastmoveX, lastmoveY, -1,  0) >= winLength) return true;
 
-        for (int ix = 0; ix < sizeX; ix++) {
+        if (1 + countDir( player, lastmoveX, lastmoveY,  0,  1) +
+            countDir( player, lastmoveX, lastmoveY,  0, -1) >= winLength) return true;
 
-            for (int of = 0; of < sizeY-winLength+1; of++) {
-                boolean colWin = true;
-                for (int iy = of; iy < winLength+of; iy++) {
-                    if (fields[ix][iy] != player) colWin = false;
-                }
-                if(colWin) return true;
+        if (1 + countDir( player, lastmoveX, lastmoveY,  1,  1) +
+            countDir( player, lastmoveX, lastmoveY, -1, -1) >= winLength) return true;
 
-            }
-        }
-
-        for (int ix = 0; ix < sizeX-winLength+1; ix++) {//left to right diagonal
-            for (int iy = 0; iy < sizeY-winLength+1; iy++) {
-                boolean diagwin1 = true;
-                for (int i = 0; i < winLength; i++) {
-                    if (fields[ix+i][iy+i] != player) diagwin1 = false;
-                }
-                if(diagwin1) return true;
-            }
-        }
-        for (int ix = 0; ix < sizeX-winLength+1; ix++) {//left to right diagonal
-            for (int iy = 0; iy < sizeY-winLength+1; iy++) {
-                boolean diagwin2 = true;
-                for (int i = 0; i < winLength; i++) {
-                    if (fields[sizeX-1-ix-i][iy+i] != player) diagwin2 = false;
-                }
-                if(diagwin2) return true;
-            }
-        }
-
+        if (1 + countDir(player, lastmoveX, lastmoveY, -1,  1) +
+            countDir(player, lastmoveX, lastmoveY,  1, -1) >= winLength) return true;
 
         return false;
     }
+
+    private  int countDir( int player, int lastX, int lastY,
+                                int dx, int dy) {
+        int sizeX = fields.length;
+        int sizeY = fields[0].length;
+        int cx = lastX + dx;
+        int cy = lastY + dy;
+        int c = 0;
+        while (cx >= 0 && cy >= 0 && cx < sizeX && cy < sizeY
+            && fields[cx][cy] == player) {
+            c++;
+            cx += dx;
+            cy += dy;
+        }
+        return c;
+    }
+
 
 
     public boolean empty()
@@ -216,8 +201,8 @@ public class ClassicFieldTable extends FieldTable{
     }
     void mouseMoved(float screenX, float screenY)
     {
-        int x = (int) Math.floor((screenX - xco) / fieldwidth);
-        int y = (int) Math.floor((screenY - yco) / fieldwidth);
+        int x = (int) Math.floor((screenX - getX()) / fieldwidth);
+        int y = (int) Math.floor((screenY - getY()) / fieldwidth);
         if (x >= 0 && x < fields.length && y >= 0 && y < fields[0].length && fields[x][y] == 0 && !gameOver) {
             hoverX = x;
             hoverY = y;
@@ -231,13 +216,14 @@ public class ClassicFieldTable extends FieldTable{
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shape.setColor(0.2f, 0.6f, 1f, 0.35f); // halbtransparentes Blau
-        float px = xco + x * fieldwidth;
-        float py = yco + y * fieldwidth;
+        float px = getX() + x * fieldwidth;
+        float py = getY() + y * fieldwidth;
         shape.rect(px, py, fieldwidth, fieldwidth);
     }
     public void setFieldWidth(float fieldwidth) {
         this.fieldwidth = fieldwidth;
         // Nach Änderung der Feldgröße muss auch die Position neu gesetzt werden!
-        setCenter(xco + (fieldwidth * fields.length) / 2f, yco + (fieldwidth * fields[0].length) / 2f);
+        setCenter(getX() + (fieldwidth * fields.length) / 2f, getY() + (fieldwidth * fields[0].length) / 2f);
+        setSize(fields.length*fieldwidth, fields[0].length *fieldwidth);
     }
 }

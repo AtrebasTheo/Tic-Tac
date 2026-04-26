@@ -21,15 +21,14 @@ public abstract class TableDrawer {
     Texture xTexture,oTexture;
     ShapeRenderer shapeRenderer;
     //SpriteBatch spriteBatch;
-    ColorfulBatch colorfulBatch;
+    SpriteBatch colorfulBatch;
 }
 
 class PaperTableDrawer extends TableDrawer{
     PaperTableDrawer()
     {
-        //background=new TextureRegion(new Texture("backgrounds/paper_1280.jpg"));
         shapeRenderer=new ShapeRenderer();
-        colorfulBatch=new ColorfulBatch();
+        colorfulBatch=new SpriteBatch();
 
         int iconSize=100;
         Pixmap xPixmap = new Pixmap(iconSize, iconSize, Pixmap.Format.RGBA8888);
@@ -63,6 +62,7 @@ class PaperTableDrawer extends TableDrawer{
     @Override
     public void drawClassicTable(float x, float y, int[][] fields, float fieldwidth,int hoverX,int hoverY) {
         // fixed:  y-=fieldwidth/2; //I have no idea why this is necessary but otherwise the table is drawn too high (it worked before I refactored/copyd the code into TableDrawer)
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         if (hoverX >= 0 && hoverY >= 0) {
             drawSquareHoverHighlight(hoverX, hoverY,x,y,fieldwidth);
