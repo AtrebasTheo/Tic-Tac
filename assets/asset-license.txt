@@ -3,19 +3,3 @@ Image by "https://pixabay.com/users/steve_a_johnson-8206634/?utm_source=link-att
 Font: license: Freeware, Non-Commercial
       link: https://www.fontspace.com/bruce-forever-font-f89044
 Buttons: https://slyfox-studios.itch.io/buttons-pack
-
-
-
-
-
-
-
-
-ideas:
-Hexagon fields
-Ice (vanish after a few moves)
-erase and strengthen/reinforce
-Planet
-UTTT (auch über die abgegrenzeten Felder)
-Recursive TTT
-5 gewinnt (falling down)

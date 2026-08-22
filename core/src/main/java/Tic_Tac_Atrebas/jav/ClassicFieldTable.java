@@ -12,9 +12,11 @@ import java.util.Arrays;
 @SuppressWarnings("ALL")
 public class ClassicFieldTable extends FieldTable{
      final int[][] fields;
+     int[][] aiFields;
      GameConfiguration configuration;
     public ClassicFieldTable(int width, int height,float fieldwidth, GameConfiguration config) {
         fields = new int[width][height]; // 0=empty, 1=X, 2=O
+        aiFields = new int[width][height];
         setSize(width*fieldwidth, height*fieldwidth);
         currentPlayer = 1; // Start with player 1
         this.fieldwidth = fieldwidth; // Set the field width
@@ -50,6 +52,7 @@ public class ClassicFieldTable extends FieldTable{
             return false; // Invalid move
         }
         fields[x][y] = currentPlayer;
+        refreshAiBoard();
         if(hoverX==x&&hoverY==y) { // If the hovered field was just played, remove the hover effect
             hoverX=-1; hoverY=-1;}
         //gameOver=checkWin(currentPlayer);
@@ -69,6 +72,19 @@ public class ClassicFieldTable extends FieldTable{
             currentPlayer = (currentPlayer == 1) ? 2 : 1; // Switch player
         }
         return true;
+    }
+
+    public synchronized void refreshAiBoard() {
+        if (aiFields == null || aiFields.length != fields.length || aiFields[0].length != fields[0].length) {
+            aiFields = new int[fields.length][fields[0].length];
+        }
+        for (int i = 0; i < fields.length; i++) {
+            System.arraycopy(fields[i], 0, aiFields[i], 0, fields[i].length);
+        }
+    }
+
+    public int[][] getAiBoard() {
+        return aiFields;
     }
 
 
@@ -135,32 +151,33 @@ public class ClassicFieldTable extends FieldTable{
     }
 
      boolean checkWin(int player, int lastmoveX, int lastmoveY) {
+        return checkWin(fields, player, lastmoveX, lastmoveY);
+    }
 
+    public boolean checkWin(int[][] board, int player, int lastmoveX, int lastmoveY) {
+        if (1 + countDir(board, player, lastmoveX, lastmoveY,  1,  0) +
+            countDir(board, player, lastmoveX, lastmoveY, -1,  0) >= winLength) return true;
 
-        if (1 + countDir( player, lastmoveX, lastmoveY,  1,  0) +
-            countDir( player, lastmoveX, lastmoveY, -1,  0) >= winLength) return true;
+        if (1 + countDir(board, player, lastmoveX, lastmoveY,  0,  1) +
+            countDir(board, player, lastmoveX, lastmoveY,  0, -1) >= winLength) return true;
 
-        if (1 + countDir( player, lastmoveX, lastmoveY,  0,  1) +
-            countDir( player, lastmoveX, lastmoveY,  0, -1) >= winLength) return true;
+        if (1 + countDir(board, player, lastmoveX, lastmoveY,  1,  1) +
+            countDir(board, player, lastmoveX, lastmoveY, -1, -1) >= winLength) return true;
 
-        if (1 + countDir( player, lastmoveX, lastmoveY,  1,  1) +
-            countDir( player, lastmoveX, lastmoveY, -1, -1) >= winLength) return true;
-
-        if (1 + countDir(player, lastmoveX, lastmoveY, -1,  1) +
-            countDir(player, lastmoveX, lastmoveY,  1, -1) >= winLength) return true;
+        if (1 + countDir(board, player, lastmoveX, lastmoveY, -1,  1) +
+            countDir(board, player, lastmoveX, lastmoveY,  1, -1) >= winLength) return true;
 
         return false;
     }
 
-    private  int countDir( int player, int lastX, int lastY,
-                                int dx, int dy) {
-        int sizeX = fields.length;
-        int sizeY = fields[0].length;
+    private int countDir(int[][] board, int player, int lastX, int lastY, int dx, int dy) {
+        int sizeX = board.length;
+        int sizeY = board[0].length;
         int cx = lastX + dx;
         int cy = lastY + dy;
         int c = 0;
         while (cx >= 0 && cy >= 0 && cx < sizeX && cy < sizeY
-            && fields[cx][cy] == player) {
+            && board[cx][cy] == player) {
             c++;
             cx += dx;
             cy += dy;
@@ -168,34 +185,41 @@ public class ClassicFieldTable extends FieldTable{
         return c;
     }
 
-
-
     public boolean empty()
     {
-        for(int i = 0; i < fields.length; i++) {
-            for(int j = 0; j < fields[i].length; j++) {
-                if(fields[i][j]!=0) return false;
-            }
-        }
-        return true;
+       return empty(fields);
     }
 
-
+    public boolean empty(int[][] board)
+    {
+       for(int i = 0; i < board.length; i++) {
+           for(int j = 0; j < board[i].length; j++) {
+               if(board[i][j]!=0) return false;
+           }
+       }
+       return true;
+    }
 
     public boolean full()
     {
-        for(int i = 0; i < fields.length; i++) {
-            for(int j = 0; j < fields[i].length; j++) {
-                if(fields[i][j]==0) return false;
-            }
-        }
-        return true;
+       return full(fields);
+    }
+
+    public boolean full(int[][] board)
+    {
+       for(int i = 0; i < board.length; i++) {
+           for(int j = 0; j < board[i].length; j++) {
+               if(board[i][j]==0) return false;
+           }
+       }
+       return true;
     }
     public void reset() {
         for(int i = 0; i < fields.length; i++) {
             // Reset all fields to empty
             Arrays.fill(fields[i], 0);
         }
+        refreshAiBoard();
         currentPlayer = 1;
         gameOver=false;
     }

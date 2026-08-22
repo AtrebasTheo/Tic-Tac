@@ -8,11 +8,10 @@ abstract class AIPlayer{
     public int aiNumber; // 1 for X, 2 for O
     public abstract void makeAIMove();
     public abstract int[] calculateBestMove();
+    public abstract int[] calculateBestMove(int[][] board);
     public abstract float analyzeWinningState();
     enum Difficulty{EASY,MEDIUM,HARD}
 }
-
-
 
 public class ClassicAI extends AIPlayer {
     ClassicFieldTable table;
@@ -23,40 +22,35 @@ public class ClassicAI extends AIPlayer {
         this.humanPlayer = (ainumPlayer == 1) ? 2 : 1;
     }
 
-    // Bewertungsfunktion: +10 für KI-Gewinn, -10 für Mensch-Gewinn, 0 für Unentschieden/kein Ende
-    private int evaluateBoard(int x, int y) {
-        if (table.checkWin(aiNumber,x,y)) return 10;
-        if (table.checkWin(humanPlayer,x,y)) return -10;
+    private int evaluateBoard(int[][] board, int x, int y) {
+        if (table.checkWin(board, aiNumber, x, y)) return 10;
+        if (table.checkWin(board, humanPlayer, x, y)) return -10;
         return 0;
     }
 
-    int[] checkImmediateWinOrBlock() {
-        for (int x = 0; x < table.fields.length; x++) {
-            for (int y = 0; y < table.fields[0].length; y++) {
-                if (table.fields[x][y] == 0) {
-                    // Check for AI win
-                    table.fields[x][y] = aiNumber;
-                    if (table.checkWin(aiNumber,x,y)) {
-                        table.fields[x][y] = 0;
+    int[] checkImmediateWinOrBlock(int[][] board) {
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board[0].length; y++) {
+                if (board[x][y] == 0) {
+                    board[x][y] = aiNumber;
+                    if (table.checkWin(board, aiNumber, x, y)) {
+                        board[x][y] = 0;
                         return new int[]{x, y};
                     }
-                    table.fields[x][y] = 0;
-
+                    board[x][y] = 0;
                 }
             }
         }
 
-        for (int x = 0; x < table.fields.length; x++) {
-            for (int y = 0; y < table.fields[0].length; y++) {
-                if (table.fields[x][y] == 0) {
-
-                    // Check for human win to block
-                    table.fields[x][y] = humanPlayer;
-                    if (table.checkWin(humanPlayer,x,y)) {
-                        table.fields[x][y] = 0;
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board[0].length; y++) {
+                if (board[x][y] == 0) {
+                    board[x][y] = humanPlayer;
+                    if (table.checkWin(board, humanPlayer, x, y)) {
+                        board[x][y] = 0;
                         return new int[]{x, y};
                     }
-                    table.fields[x][y] = 0;
+                    board[x][y] = 0;
                 }
             }
         }
@@ -64,27 +58,23 @@ public class ClassicAI extends AIPlayer {
         return null;
     }
 
-
-
-
-    // Minimax mit Alpha-Beta-Pruning
-    private int minimax(int depth, int alpha, int beta, boolean maximizingPlayer,int lastX,int lastY) {
-        int score = evaluateBoard(lastX, lastY);
-        if (Math.abs(score) == 10 || table.full() || depth == 0) {
+    private int minimax(int[][] board, int depth, int alpha, int beta, boolean maximizingPlayer, int lastX, int lastY) {
+        int score = evaluateBoard(board, lastX, lastY);
+        if (Math.abs(score) == 10 || table.full(board) || depth == 0) {
             return score;
         }
         if (maximizingPlayer) {
             int maxEval = Integer.MIN_VALUE;
-            for (int x = 0; x < table.fields.length; x++) {
-                for (int y = 0; y < table.fields[0].length; y++) {
-                    if (table.fields[x][y] == 0&&hasNeighbor(x,y)) {
-                        table.fields[x][y] = aiNumber;
-                        if (table.checkWin(aiNumber,x,y)) {
-                            table.fields[x][y] = 0;
+            for (int x = 0; x < board.length; x++) {
+                for (int y = 0; y < board[0].length; y++) {
+                    if (board[x][y] == 0 && hasNeighbor(board, x, y)) {
+                        board[x][y] = aiNumber;
+                        if (table.checkWin(board, aiNumber, x, y)) {
+                            board[x][y] = 0;
                             return 10;
                         }
-                        int eval = minimax(depth - 1, alpha, beta, false,x,y);
-                        table.fields[x][y] = 0;
+                        int eval = minimax(board, depth - 1, alpha, beta, false, x, y);
+                        board[x][y] = 0;
                         maxEval = Math.max(maxEval, eval);
                         alpha = Math.max(alpha, eval);
                         if (beta <= alpha) break;
@@ -92,18 +82,18 @@ public class ClassicAI extends AIPlayer {
                 }
             }
             return maxEval;
-        } else {// Minimizing opponent player
+        } else {
             int minEval = Integer.MAX_VALUE;
-            for (int x = 0; x < table.fields.length; x++) {
-                for (int y = 0; y < table.fields[0].length; y++) {
-                    if (table.fields[x][y] == 0&&hasNeighbor(x,y)) {
-                        table.fields[x][y] = humanPlayer;
-                        if (table.checkWin(humanPlayer,x,y)) {
-                            table.fields[x][y] = 0;
+            for (int x = 0; x < board.length; x++) {
+                for (int y = 0; y < board[0].length; y++) {
+                    if (board[x][y] == 0 && hasNeighbor(board, x, y)) {
+                        board[x][y] = humanPlayer;
+                        if (table.checkWin(board, humanPlayer, x, y)) {
+                            board[x][y] = 0;
                             return -10;
                         }
-                        int eval = minimax(depth - 1, alpha, beta, true,x,y);
-                        table.fields[x][y] = 0;
+                        int eval = minimax(board, depth - 1, alpha, beta, true, x, y);
+                        board[x][y] = 0;
                         minEval = Math.min(minEval, eval);
                         beta = Math.min(beta, eval);
                         if (beta <= alpha) break;
@@ -114,56 +104,57 @@ public class ClassicAI extends AIPlayer {
         }
     }
 
-
-    boolean hasNeighbor(int x, int y) {
+    private boolean hasNeighbor(int[][] board, int x, int y) {
         int[] dx = {-1, 0, 1, -1, 1, -1, 0, 1};
         int[] dy = {-1, -1, -1, 0, 0, 1, 1, 1};
         for (int i = 0; i < dx.length; i++) {
             int nx = x + dx[i];
             int ny = y + dy[i];
-            if (nx >= 0 && nx < table.fields.length && ny >= 0 && ny < table.fields[0].length) {
-                if (table.fields[nx][ny] != 0) return true;
+            if (nx >= 0 && nx < board.length && ny >= 0 && ny < board[0].length && board[nx][ny] != 0) {
+                return true;
             }
         }
         return false;
     }
-
 
     void makeRandomMove() {
         List<int[]> availableMoves = new ArrayList<>();
         for (int i = 0; i < table.fields.length; i++) {
             for (int j = 0; j < table.fields[0].length; j++) {
                 if (table.fields[i][j] == 0) {
-                   availableMoves.add(new int[]{i, j});
+                    availableMoves.add(new int[]{i, j});
                 }
             }
         }
         int randomIndex = (int) (Math.random() * availableMoves.size());
         int i = availableMoves.get(randomIndex)[0];
         int j = availableMoves.get(randomIndex)[1];
-        //table.makeMoveAtField(i, j);
-
     }
-    // Führt den besten Zug aus
+
     public int[] calculateBestMove() {
-        if(table.empty())
-        {
-            return new int[]{table.fields.length/2, table.fields[0].length/2};
+        return calculateBestMove(table.getAiBoard());
+    }
+
+    public int[] calculateBestMove(int[][] board) {
+        if (table.empty(board)) {
+            return new int[]{board.length / 2, board[0].length / 2};
         }
-        int[] field=checkImmediateWinOrBlock();
-        if(field!=null){
+
+        int[] field = checkImmediateWinOrBlock(board);
+        if (field != null) {
             return field;
         }
+
         int bestScore = Integer.MIN_VALUE;
         int bestX = -1, bestY = -1;
-        for (int x = 0; x < table.fields.length; x++) {
-            for (int y = 0; y < table.fields[0].length; y++) {
-                if (table.fields[x][y] == 0&&hasNeighbor(x,y)) {
-                    table.fields[x][y] = aiNumber;
-                    int score = minimax(6, Integer.MIN_VALUE, Integer.MAX_VALUE, false,x,y);
-                    table.fields[x][y] = 0;
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board[0].length; y++) {
+                if (board[x][y] == 0 && hasNeighbor(board, x, y)) {
+                    board[x][y] = aiNumber;
+                    int score = minimax(board, 6, Integer.MIN_VALUE, Integer.MAX_VALUE, false, x, y);
+                    board[x][y] = 0;
                     if (score >= bestScore) {
-                        if(score==bestScore&&Math.random()<0.3) continue;
+                        if (score == bestScore && Math.random() < 0.3) continue;
                         bestScore = score;
                         bestX = x;
                         bestY = y;
@@ -171,12 +162,14 @@ public class ClassicAI extends AIPlayer {
                 }
             }
         }
+
         if (bestX != -1 && bestY != -1) {
             return new int[]{bestX, bestY};
         }
-        for (int i = 0; i < table.fields.length; i++) {
-            for (int j = 0; j < table.fields[0].length; j++) {
-                if (table.fields[i][j] == 0) {
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (board[i][j] == 0) {
                     return new int[]{i, j};
                 }
             }
@@ -194,5 +187,4 @@ public class ClassicAI extends AIPlayer {
     public float analyzeWinningState() {
         return 1;
     }
-
 }

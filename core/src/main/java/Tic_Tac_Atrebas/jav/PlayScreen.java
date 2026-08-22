@@ -131,8 +131,9 @@ public class PlayScreen implements Screen {
         if(game.getGameConfiguration().aiEnabled && playTable.currentPlayer==aiPlayer.aiNumber) {
             final AIPlayer ai = aiPlayer;
             aiIsThinking = true;
+            playTable.refreshAiBoard();
             new Thread(() -> {
-                int[] bestMove = ai.calculateBestMove();
+                int[] bestMove = ai.calculateBestMove(playTable.getAiBoard());
                 Gdx.app.postRunnable(() -> {
                     if (bestMove != null) {
                         playTable.makeMoveAtField(bestMove[0], bestMove[1]);
