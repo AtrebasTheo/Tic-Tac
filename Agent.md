@@ -34,7 +34,7 @@ High-level sequence:
 1. `Main.create()` -> loads assets -> `StartScreen`
 2. User chooses mode in `StartScreen`
 3. `Main` switches to `new PlayScreen(game)`
-4. `PlayScreen.initializeTable()` creates a `ClassicFieldTable`
+4. `PlayScreen.initializeTable()` creates a ClassicFieldTable
 5. Loop continues until `gameOver` is true:
    1. Input listener captures clicks in `show()`
    2. `playTable.makeMove(...)` validates and applies move
@@ -72,13 +72,13 @@ switched via `game.setScreen(...)`
 ### `FieldTable` (abstract)
 - Base class for board logic, extends `Actor`
 - some Fields:
-  - `fieldwidth`
+  - `fieldWidth`
   - `currentPlayer`
   - `drawer`
 - Abstract methods as board API
 - Concrete implementations for move validation, reset, win checks, hover behavior
 
-### `ClassicFieldTable`
+### ClassicFieldTable
 - Concrete board implementation for Tic-Tac-Toe
 - Stores the grid as `int[][] fields`
 - `makeMoveAtField(int x, int y)`
@@ -137,7 +137,7 @@ From the repo root:
 
 
 ## Practical guidance for agents
-- Keep screen-level UI in `StartScreen`/`PlayScreen` and board/game logic in `FieldTable`/`ClassicFieldTable`.
+- Keep screen-level UI in `StartScreen`/`PlayScreen` and board/game logic in `FieldTable`/ClassicFieldTable.
 - Prefer using `Gdx.app.postRunnable(...)` when a background thread needs to touch UI or libGDX state.
 - `GameConfiguration` is the source of truth for mode and AI settings during a run.
 - `SettingsConfiguration` is not deeply integrated yet; do not assume it is the runtime state.

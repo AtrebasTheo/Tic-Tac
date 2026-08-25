@@ -1,25 +1,32 @@
 package Tic_Tac_Atrebas.jav;
 
 public class GameConfiguration {
-    int playercount;
+    int playerCount;
     int winLength;
+    float fieldWidth=100;
+    int tableWidth =5;
+    int tableHeight =5;
+
     boolean aiEnabled;
     GameMode gameMode=GameMode.Classic;
     //Modifiers
     boolean iced;
-    boolean eraseable;
+    boolean erasable;
     boolean reinforced;
     GameStyle gameStyle=GameStyle.Classic_Paper;
     ButtonColour buttonColour=ButtonColour.Blue;
     public GameConfiguration copy()
     {
         GameConfiguration copy= new GameConfiguration();
-        copy.playercount=playercount;
+        copy.playerCount = playerCount;
         copy.winLength=winLength;
+        copy.fieldWidth=fieldWidth;
+        copy.tableWidth=tableWidth;
+        copy.tableHeight=tableHeight;
         copy.aiEnabled=aiEnabled;
         copy.gameMode=gameMode;
         copy.iced=iced;
-        copy.eraseable=eraseable;
+        copy.erasable = erasable;
         copy.reinforced=reinforced;
         copy.gameStyle=gameStyle;
         return copy;

@@ -87,7 +87,7 @@ public class StartScreen implements Screen {
         btn1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getGameConfiguration().playercount=2;
+                game.getGameConfiguration().playerCount =2;
                 game.getGameConfiguration().winLength=0;
                 game.getGameConfiguration().aiEnabled=true;
                 game.getGameConfiguration().gameMode=GameMode.Classic;
@@ -99,7 +99,7 @@ public class StartScreen implements Screen {
         btn2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getGameConfiguration().playercount=2;
+                game.getGameConfiguration().playerCount =2;
                 game.getGameConfiguration().winLength=0;
                 game.getGameConfiguration().gameMode=GameMode.Classic;
                 game.getGameConfiguration().aiEnabled=false;

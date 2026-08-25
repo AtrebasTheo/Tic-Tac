@@ -27,7 +27,7 @@ public class PlayScreen implements Screen {
     private final ScreenViewport viewport;
     private final ShapeRenderer shape;
     private final SpriteBatch spriteBatch;
-    private ClassicFieldTable playTable;
+    private FieldTable playTable;
     TextureRegion backgroundTexture;
     private final Main game;
     private final Stage stage;
@@ -113,14 +113,14 @@ public class PlayScreen implements Screen {
 
     void initializeTable() {
         switch(game.getGameConfiguration().gameMode) {
-            case GameMode.Classic -> playTable = new ClassicFieldTable(5,game.getGameConfiguration());
+            case GameMode.Classic -> playTable = new ClassicFieldTable(game.getGameConfiguration());
             /*case 3 -> playTable = new ClassicFieldTable(5,game.getConfig());
             case 4 -> playTable = new ClassicFieldTable(7,game.getConfig());
             default -> playTable = new ClassicFieldTable(3,game.getConfig());*/
         }
         playTable.setCenter(viewport.getWorldWidth() / 2f, viewport.getWorldHeight() / 2f);
         if(game.getGameConfiguration().aiEnabled)
-        {aiPlayer= new ClassicAI(playTable,game.getGameConfiguration().playercount);}
+        {aiPlayer= new ClassicAI((ClassicFieldTable) playTable,game.getGameConfiguration().playerCount);}
 
     }
 
@@ -315,6 +315,13 @@ public class PlayScreen implements Screen {
                 table.remove();
                 show();
                 updatePlayerIcon(); // Icon nach Reset aktualisieren
+                settingsButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        showSettingsMenu();
+                    }
+                });
+                settingsButton.removeListener(settingsButton.getListeners().get(1));
             }
         });
 
