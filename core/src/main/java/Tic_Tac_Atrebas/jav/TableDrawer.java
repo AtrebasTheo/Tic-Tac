@@ -114,13 +114,13 @@ class PaperTableDrawer extends TableDrawer{
     }
 
     @Override
-    void drawSquareHoverHighlight(int x, int y, float xco, float yco, float width) {
+    void drawSquareHoverHighlight(int x, int y, float xco, float yco, float length) {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.setColor(0.2f, 0.6f, 1f, 0.35f); // halbtransparentes Blau
-        float px = xco + x * width;
-        float py = yco + y * width;
-        shapeRenderer.rect(px, py, width, width);
+        float px = xco + x * length;
+        float py = yco + y * length;
+        shapeRenderer.rect(px, py, length, length);
     }
 
     @Override
