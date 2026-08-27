@@ -126,9 +126,12 @@ public class ClassicAI extends AIPlayer {
                 }
             }
         }
+        if (availableMoves.isEmpty()) return; // nothing to do
         int randomIndex = (int) (Math.random() * availableMoves.size());
         int i = availableMoves.get(randomIndex)[0];
         int j = availableMoves.get(randomIndex)[1];
+        // commit the move to the table
+        table.makeMoveAtField(i, j);
     }
 
     public int[] calculateBestMove() {
@@ -180,7 +183,7 @@ public class ClassicAI extends AIPlayer {
     public void makeAIMove() {
         int[] bestMove = calculateBestMove();
         if (bestMove != null) {
-            //table.makeMoveAtField(bestMove[0], bestMove[1]);
+            table.makeMoveAtField(bestMove[0], bestMove[1]);
         }
     }
 
