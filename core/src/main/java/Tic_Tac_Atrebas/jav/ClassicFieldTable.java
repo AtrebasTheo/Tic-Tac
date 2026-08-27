@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-import java.util.Arrays;
 
 @SuppressWarnings("ALL")
 public class ClassicFieldTable extends FieldTable{

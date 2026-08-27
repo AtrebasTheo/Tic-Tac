@@ -116,8 +116,10 @@ switched via `game.setScreen(...)`
 ## Important interfaces and contracts
 - `com.badlogic.gdx.Screen` is the main interface for app screens
 - `com.badlogic.gdx.Game` is the app-level controller
-- `FieldTable` is an abstract UI/game model contract for board implementations
-- `AIPlayer` defines the AI contract, but `ClassicAI` is the only concrete implementation currently used
+- `GameModel` (abstract) is the core, libGDX-free representation of game state and rules. With API for UI and AI
+  - `ClassicGameModel` extends `GameModel` and implements the methods.
+- `FieldTable` is the UI adapter and should delegate gameplay operations to a `GameModel` instance rather than embedding pure game logic.
+- `AIPlayer` defines the AI contract; `ClassicAI` is the concrete implementation and should operate on `GameModel`-provided snapshots (via `getAiBoard()`) so it can run off the libGDX thread safely.
 
 
 ## Launch targets
@@ -133,13 +135,13 @@ switched via `game.setScreen(...)`
 From the repo root:
 - `chmod +x gradlew`
 - `./gradlew --no-daemon :core:compileJava :lwjgl3:compileJava`
-- `./gradlew --no-daemon :lwjgl3:run`
+- `./gradlew --no-daemon :core:test :lwjgl3:run`
+
+Note: Unit tests were updated — ClassicGameModel unit tests now target the refactored, libGDX-free model. Run `./gradlew :core:test` to execute them headlessly. If tests fail, re-run with `--info` for more details and ensure no libGDX dependencies are present in model-only tests.
 
 
 ## Practical guidance for agents
-- Keep screen-level UI in `StartScreen`/`PlayScreen` and board/game logic in `FieldTable`/ClassicFieldTable.
 - Prefer using `Gdx.app.postRunnable(...)` when a background thread needs to touch UI or libGDX state.
-- `GameConfiguration` is the source of truth for mode and AI settings during a run.
 - `SettingsConfiguration` is not deeply integrated yet; do not assume it is the runtime state.
 - Avoid changing `build/` output or generated files directly.
 - The codebase has partial/incomplete features and several rough spots; prefer surgical changes and preserve the current design patterns.
