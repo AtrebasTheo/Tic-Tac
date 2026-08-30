@@ -21,6 +21,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /** First screen of the application. Displayed after the application is created. */
 public class PlayScreen implements Screen {
@@ -38,7 +41,8 @@ public class PlayScreen implements Screen {
     private Label playerLabel;
     private ImageButton settingsButton;
     AIPlayer aiPlayer;
-    boolean aiIsThinking = false;
+    volatile boolean aiIsThinking = false;
+    private Future<?> aiFuture = null;
     public PlayScreen(Main game) {
         this.game = game;
         viewport = new ScreenViewport();
@@ -125,26 +129,45 @@ public class PlayScreen implements Screen {
     }
 
 
+    private void cancelAiTask() {
+        if (aiFuture != null) {
+            aiFuture.cancel(true);
+            aiFuture = null;
+        }
+        aiIsThinking = false;
+    }
+
     public void checkAI() {
 
-        if (playTable.gameOver||aiIsThinking) return;
-        if(game.getGameConfiguration().aiEnabled && playTable.currentPlayer==aiPlayer.aiNumber) {
+        if (playTable.gameOver || aiIsThinking) return;
+        if (game.getGameConfiguration().aiEnabled && playTable.currentPlayer == aiPlayer.aiNumber) {
+            cancelAiTask();
             final AIPlayer ai = aiPlayer;
             aiIsThinking = true;
             playTable.refreshAiBoard();
-            new Thread(() -> {
-                int[] bestMove = ai.calculateBestMove(playTable.getAiBoard());
-                Gdx.app.postRunnable(() -> {
-                    if (bestMove != null) {
-                        playTable.makeMoveAtField(bestMove[0], bestMove[1]);
-                        aiIsThinking = false;
+            aiFuture = game.aiExecutor.submit(() -> {
+                int[] bestMove;
+                try {
+                    bestMove = ai.calculateBestMove(playTable.getAiBoard());
+                } catch (Throwable t) {
+                    Gdx.app.error("PlayScreen", "AI calculation failed", t);
+                    Gdx.app.postRunnable(() -> {
+                        cancelAiTask();
                         onCompletedMove();
+                    });
+                    return;
+                }
+                final int[] move = bestMove;
+                Gdx.app.postRunnable(() -> {
+                    if (move != null) {
+                        playTable.makeMoveAtField(move[0], move[1]);
+                    } else {
+                        Gdx.app.error("PlayScreen", "AI couldn't find a move");
                     }
-                    else{
-                        throw new IllegalArgumentException("AI konnte keinen Zug finden!");
-                    }
+                    cancelAiTask();
+                    onCompletedMove();
                 });
-            }).start();
+            });
         }
     }
 
@@ -307,6 +330,7 @@ public class PlayScreen implements Screen {
         restartButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                cancelAiTask();
                 playerLabel.setText("Player:");
                 playTable.reset();
                 restartButton.remove();
@@ -328,6 +352,7 @@ public class PlayScreen implements Screen {
         menuButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                cancelAiTask();
                 game.setScreen(game.startScreen);
             }
         });
@@ -398,12 +423,18 @@ public class PlayScreen implements Screen {
 
     @Override
     public void hide() {
+        cancelAiTask();
+        Gdx.input.setInputProcessor(null);
         dispose();
     }
 
     @Override
     public void dispose() {
+        cancelAiTask();
         Gdx.input.setInputProcessor(null);
+        if (playTable != null && playTable.drawer != null) {
+            playTable.drawer.dispose();
+        }
         shape.dispose();
         stage.dispose();
         spriteBatch.dispose();

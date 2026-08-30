@@ -1,6 +1,10 @@
 package Tic_Tac_Atrebas.jav;
 
 import org.junit.Test;
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
+
 import static org.junit.Assert.*;
 
 public class ClassicGameModelTest {
@@ -61,5 +65,47 @@ public class ClassicGameModelTest {
 
         assertTrue(model.gameOver);
         assertEquals(0, model.winner);
+    }
+
+    @Test
+    public void aiMovePlacesMarkerOnEmptyBoard() throws Exception {
+        GameConfiguration config = new GameConfiguration();
+        config.tableWidth = 3;
+        config.tableHeight = 3;
+        config.fieldWidth = 100;
+        ClassicGameModel model = new ClassicGameModel(config);
+
+        Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+        theUnsafe.setAccessible(true);
+        Unsafe unsafe = (Unsafe) theUnsafe.get(null);
+
+        ClassicFieldTable table = (ClassicFieldTable) unsafe.allocateInstance(ClassicFieldTable.class);
+
+        Field modelField = ClassicFieldTable.class.getDeclaredField("model");
+        modelField.setAccessible(true);
+        modelField.set(table, model);
+
+        Field fieldsField = ClassicFieldTable.class.getDeclaredField("fields");
+        fieldsField.setAccessible(true);
+        fieldsField.set(table, model.fields);
+
+        Field currentPlayerField = FieldTable.class.getDeclaredField("currentPlayer");
+        currentPlayerField.setAccessible(true);
+        currentPlayerField.setInt(table, 1);
+
+        ClassicAI ai = new ClassicAI(table, 1);
+        ai.makeAIMove();
+
+        int filledCells = 0;
+        for (int x = 0; x < table.fields.length; x++) {
+            for (int y = 0; y < table.fields[x].length; y++) {
+                if (table.fields[x][y] != 0) {
+                    filledCells++;
+                    assertEquals(1, table.fields[x][y]);
+                }
+            }
+        }
+
+        assertEquals(1, filledCells);
     }
 }

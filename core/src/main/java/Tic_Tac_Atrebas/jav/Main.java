@@ -15,6 +15,9 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
     Texture backgroundTexture;
@@ -22,6 +25,7 @@ public class Main extends Game {
     private SpriteBatch spriteBatch;
     private GameConfiguration gameConfiguration;
     AdvancedAssetManager assetManager;
+    final ExecutorService aiExecutor = Executors.newSingleThreadExecutor();
     enum State {
         LOAD,START, PLAY,GAMEOVER, RESTART, EXIT
     }
@@ -97,6 +101,11 @@ public class Main extends Game {
 
     @Override
     public void dispose() {
+        aiExecutor.shutdownNow();
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
+            backgroundTexture = null;
+        }
         super.dispose();
         assetManager.dispose();
     }
