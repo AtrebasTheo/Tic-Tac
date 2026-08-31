@@ -92,13 +92,13 @@ public class PlayScreen implements Screen {
 
          settingsButton = new ImageButton(settingsStyle);
 
-        settingsButton.setSize(96, 96);
+        settingsButton.setSize(96, 96); //keep this size for the button, otherwise it's glitchy
         playerLabel = new Label("Player:", labelStyle);
         playerLabel.setAlignment(Align.center);
         playerIcon = new Image(getPlayerIcon(playTable.getCurrentPlayer())); // Referenz speichern
         Table playerRow = new Table();
         playerRow.add(playerLabel).padRight(10f);
-        playerRow.add(playerIcon).size(100, 100);
+        playerRow.add(playerIcon).size(game.getGameConfiguration().playerIconSize, game.getGameConfiguration().playerIconSize);
         playerRow.align(Align.topLeft);
         settingsButton.align(Align.topRight);
         table.add(settingsButton).padTop(10f).padBottom(-60f).padLeft(510f).size(80,80).expandX().row();

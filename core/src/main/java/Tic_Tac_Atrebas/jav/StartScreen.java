@@ -42,7 +42,12 @@ public class StartScreen implements Screen {
         normalFont = game.assetManager.get("bruce.ttf", BitmapFont.class);
 
         // Hintergrundbild oder Farbverlauf erzeugen (hier: einfacher Verlauf)
-        Pixmap bgpixmap= PixmapLibrary.getColourGradientMap(new Color(0.1f, 0.3f , 0.8f, 1f),new Color(0.1f, 0.3f + 0.45f, 0.8f, 1f),1,256);
+        Pixmap bgpixmap = PixmapLibrary.getColourGradientMap(
+            new Color(game.getGameConfiguration().backgroundRed, game.getGameConfiguration().backgroundGreen, game.getGameConfiguration().backgroundBlue, 1f),
+            new Color(game.getGameConfiguration().backgroundRed, game.getGameConfiguration().backgroundGreen + 0.45f, game.getGameConfiguration().backgroundBlue, 1f),
+            1,
+            256
+        );
         Texture bgTexture = new Texture(bgpixmap);
         disposableTextures.add(bgTexture);
         bgpixmap.dispose();
@@ -64,7 +69,8 @@ public class StartScreen implements Screen {
         stage.addActor(table);
 
         // Pixmap für abgerundete Buttons erzeugen (normal, hover, pressed)
-        int btnWidth = 400, btnHeight = 100;
+        float btnWidth = game.getGameConfiguration().buttonWidth;
+        float btnHeight = game.getGameConfiguration().buttonHeight;
 
         TextButtonStyle roundedStyle =game.assetManager.getStandartBlueTextButtonStyle();
         TextButton btn1 = new TextButton("1 Player", roundedStyle);
@@ -144,7 +150,7 @@ public class StartScreen implements Screen {
         settingsTable.setFillParent(true);
         settingsTable.center();
         // Engere Anordnung für Hochkant (Mobilgerät)
-        final float panelWidth = 300f; // schmaleres Layout
+        final float panelWidth = game.getGameConfiguration().panelWidth; // schmaleres Layout
         settingsTable.padTop(30);
         stage.addActor(settingsTable);
 

@@ -148,13 +148,14 @@ public class ClassicAI extends AIPlayer {
             return field;
         }
 
+        int minimaxDepth = table.configuration.aiMinimaxDepth;
         int bestScore = Integer.MIN_VALUE;
         int bestX = -1, bestY = -1;
         for (int x = 0; x < board.length; x++) {
             for (int y = 0; y < board[0].length; y++) {
                 if (board[x][y] == 0 && hasNeighbor(board, x, y)) {
                     board[x][y] = aiNumber;
-                    int score = minimax(board, 6, Integer.MIN_VALUE, Integer.MAX_VALUE, false, x, y);
+                    int score = minimax(board, minimaxDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, false, x, y);
                     board[x][y] = 0;
                     if (score >= bestScore) {
                         if (score == bestScore && Math.random() < 0.3) continue;

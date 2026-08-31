@@ -18,6 +18,5 @@ Currently not accepting contributions. Please reach out to the maintainer if you
 - Run the relevant Gradle tasks before submitting a PR.
 
 ## Coding notes
-- This project uses Java and LibGDX.
 - Prefer package-private visibility for internal helpers when possible.
 - Keep UI thread work in the LibGDX render loop and post background work to the app thread when needed.
