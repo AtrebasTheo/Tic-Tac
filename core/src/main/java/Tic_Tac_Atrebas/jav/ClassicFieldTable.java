@@ -34,8 +34,8 @@ public class ClassicFieldTable extends FieldTable{
     {return getY() + getHeight() / 2;}
 
     public boolean makeMove(float xt, float yt) {
-        int x=(int) (  (xt- getX()) / fieldWidth);
-        int y=(int) ((yt- getY()) / fieldWidth);
+        int x = (int) Math.floor((xt - getX()) / fieldWidth);
+        int y = (int) Math.floor((yt - getY()) / fieldWidth);
         if(hoverX==x&&hoverY==y) { // If the hovered field was just played, remove the hover effect
             hoverX=-1; hoverY=-1;}
         return makeMoveAtField(x,y);

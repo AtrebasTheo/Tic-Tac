@@ -49,6 +49,11 @@ public class Main extends Game {
         return gameConfiguration;
     }
 
+    void setGameConfiguration(GameConfiguration config){
+        this.gameConfiguration=config;
+        assetManager.setImageButtonStyleTexture("Buttons/"+getGameConfiguration().buttonColour.name()+"_Buttons_Pixel.png");
+    }
+
     @Override
     public void render() {
        // System.out.println(viewport.getScreenWidth());

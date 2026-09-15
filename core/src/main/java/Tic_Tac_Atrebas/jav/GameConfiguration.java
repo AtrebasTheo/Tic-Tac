@@ -45,7 +45,7 @@ public class GameConfiguration {
         copy.iced = iced;
         copy.erasable = erasable;
         copy.reinforced = reinforced;
-        copy.gameStyle = gameStyle;
+        copy.gameStyle =gameStyle;
         copy.buttonColour = buttonColour;
         return copy;
     }

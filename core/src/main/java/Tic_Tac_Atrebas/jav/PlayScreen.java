@@ -188,6 +188,9 @@ public class PlayScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(inputMultiplexer);
+        if(inputMultiplexer.getProcessors().size>1) {
+            return;
+        }
         inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
@@ -280,6 +283,9 @@ public class PlayScreen implements Screen {
 
         Table table = new Table();
         table.setFillParent(true);
+        Pixmap map= PixmapLibrary.getTunnelMap(new Color(0f, 0f, 0f, 0.7f),new Color(0f, 0f, 0f, 0.75f),40,1,100);
+        table.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture(map))));
+        map.dispose();
         table.center();
         stage.addActor(table);
         settingsButton.removeListener(settingsButton.getListeners().get(1));

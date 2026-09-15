@@ -24,8 +24,14 @@ public class ClassicGameModel extends GameModel
         refreshAiBoard();
     }
 
-    @Override
-    boolean makeMoveAtField(int x, int y) {
+    public boolean makeMoveAtField(int index) {
+        int x = index / fields[0].length;
+        int y = index % fields[0].length;
+        return makeMoveAtField(x, y);
+    }
+
+        @Override
+    public boolean makeMoveAtField(int x, int y) {
         if (x < 0 || x >= fields.length || y < 0 || y >= fields[0].length || fields[x][y] != 0) {
             System.out.println("invalid");
             System.out.println("x: "+x+" y: "+y);
@@ -64,7 +70,15 @@ public class ClassicGameModel extends GameModel
         return aiFields;
     }
 
-
+    public double[] getFieldsArray() {
+        double[] flatFields = new double[fields.length * fields[0].length];
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[i].length; j++) {
+                flatFields[i * fields[i].length + j] = fields[i][j];
+            }
+        }
+        return flatFields;
+    }
 
     public void reset() {
         for(int i = 0; i < fields.length; i++) {
